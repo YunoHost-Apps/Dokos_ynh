@@ -263,9 +263,6 @@ bench get-app --branch v4 dokos
 bench get-app --branch v4 hrms
 
 bench new-site $site_name --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $admin_pwd
-bench --site $site_name install-app payments
-bench --site $site_name install-app dokos
-bench --site $site_name install-app hrms
 
 ### fail2ban était installé et paramétré par la commande "sudo bench setup production $USER" mais n'est plus traité dans ce script du coup
 
@@ -572,6 +569,9 @@ sleep 1
 # Enable and resume the scheduler for the site
 bench --site $site_name scheduler enable && \
 bench --site $site_name scheduler resume && \
+bench --site $site_name install-app payments
+bench --site $site_name install-app dokos
+bench --site $site_name install-app hrms
 
 echo -e "${YELLOW}Restarting bench to apply all changes and optimizing environment pernissions.${NC}"
 sleep 1
@@ -591,7 +591,7 @@ if [ -z "$py_version" ] || [ "$py_major" -lt 3 ] || [ "$py_major" -eq 3 -a "$py_
 fi
 
 echo -e "${GREEN}--------------------------------------------------------------------------------"
-echo -e "Congratulations! You have successfully installed Dokos 3."
+echo -e "Congratulations! You have successfully installed Dokos 4."
 echo -e "You can start using your new ERPNext installation by visiting http://$site_name"
 echo -e "(if you have enabled SSL and used a Fully Qualified Domain Name"
 echo -e "during installation) or http://$server_ip to begin."
