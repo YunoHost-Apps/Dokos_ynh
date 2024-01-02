@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 
 # Checking Supported OS and distribution
 SUPPORTED_DISTRIBUTIONS=("Ubuntu" "Debian")
-SUPPORTED_VERSIONS=("22.04" "11" "12")
+SUPPORTED_VERSIONS=("22.04" "11")
 
 check_os() {
     local os_name=$(lsb_release -is)
