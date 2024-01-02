@@ -197,7 +197,7 @@ if [ -z "$py_version" ] || [ "$py_major" -lt 3 ] || [ "$py_major" -eq 3 -a "$py_
     source $USER/bin/activate
     nvm use $node_version
 fi
-sudo pip3 install --upgrade --quiet dokos-cli
+pip3 install --upgrade --quiet dokos-cli
 
 #Initiate bench in dokos-bench-folder folder, but get a supervisor can't restart bench error...
 echo -e "${YELLOW}Initialising bench in dokos-bench-folder folder.${NC}" 
