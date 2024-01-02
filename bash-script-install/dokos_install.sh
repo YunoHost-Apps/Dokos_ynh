@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 
 # Checking Supported OS and distribution
 SUPPORTED_DISTRIBUTIONS=("Ubuntu" "Debian")
-SUPPORTED_VERSIONS=("22.04" "11")
+SUPPORTED_VERSIONS=("22.04" "11" "12")
 
 check_os() {
     local os_name=$(lsb_release -is)
@@ -102,6 +102,10 @@ sleep 3
 
 # Check OS and version compatibility for all versions
 check_os
+
+bench_folder="dokos-bench-folder"
+benchdir="$HOME/$bench_folder"
+
 #First Let's take you home
 cd $(sudo -u $USER echo $HOME)
 echo -e "\n"
@@ -199,11 +203,12 @@ if [ -z "$py_version" ] || [ "$py_major" -lt 3 ] || [ "$py_major" -eq 3 -a "$py_
 fi
 pip3 install --upgrade --quiet dokos-cli
 
-#Initiate bench in dokos-bench-folder folder, but get a supervisor can't restart bench error...
-echo -e "${YELLOW}Initialising bench in dokos-bench-folder folder.${NC}" 
+
+#Initiate bench in $bench_folder folder, but get a supervisor can't restart bench error...
+echo -e "${YELLOW}Initialising bench in $bench_folder folder.${NC}" 
 echo -e "${LIGHT_BLUE}If you get a restart failed, don't worry, we will resolve that later.${NC}"
 sleep 4
-bench init dokos-bench-folder --version v4 --verbose
+bench init $bench_folder --version v4 --verbose
 echo -e "${GREEN}Bench installation complete!${NC}"
 sleep 2
 
@@ -236,25 +241,25 @@ sudo mysql -u root -e "FLUSH PRIVILEGES;"
 echo -e "${YELLOW}...And add some settings to /etc/mysql/my.cnf:${NC}"
 sleep 2
 
-sudo bash -c 'cat << EOF >> /etc/mysql/my.cnf
-[mysqld]
-character-set-client-handshake = FALSE
-character-set-server = utf8mb4
-collation-server = utf8mb4_unicode_ci
+#sudo bash -c 'cat << EOF >> /etc/mysql/my.cnf
+#[mysqld]
+#character-set-client-handshake = FALSE
+#character-set-server = utf8mb4
+#collation-server = utf8mb4_unicode_ci
 
-[mysql]
-default-character-set = utf8mb4
-EOF'
+#[mysql]
+#default-character-set = utf8mb4
+#EOF'
 
-sudo service mysql restart
+#sudo service mysql restart
 echo -e "${GREEN}MariaDB settings done!${NC}"
 echo -e "\n"
 sleep 1
 
 echo -e "${YELLOW}Now setting up your site. This might take a few minutes. Please wait...${NC}"
 sleep 1
-# Change directory to dokos-bench-folder
-cd dokos-bench-folder && \
+# Change directory to $bench_folder
+cd $bench_folder && \
 
 sudo chmod -R o+rx /home/$(echo $USER)
 
@@ -262,7 +267,18 @@ bench get-app --branch v4 payments
 bench get-app --branch v4 dokos
 bench get-app --branch v4 hrms
 
+#to trick the command bench new-site which check value of character_set_server and collation_server even though we created a database setting character and collation for the database itself
+ 
+character_set_server=$(sudo mysql -u root -ss -N -e "SELECT VARIABLE_VALUE FROM information_schema.GLOBAL_VARIABLES WHERE  variable_name ='character_set_server';")
+collation_server=$(sudo mysql -u root -ss -N -e "SELECT VARIABLE_VALUE FROM information_schema.GLOBAL_VARIABLES WHERE  variable_name ='collation_server';")
+sudo mysql -u root -e "SET GLOBAL character_set_server = 'utf8mb4'";
+sudo mysql -u root -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci'";
+
 bench new-site $site_name --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $admin_pwd
+
+# putting back the original value of character_set_server and collation_server
+sudo mysql -u root -e "SET GLOBAL character_set_server = '$character_set_server'";
+sudo mysql -u root -e "SET GLOBAL collation_server = '$collation_server'";
 
 ### fail2ban était installé et paramétré par la commande "sudo bench setup production $USER" mais n'est plus traité dans ce script du coup
 
@@ -272,46 +288,30 @@ sleep 2
 # Setup supervisor and nginx config
 #yes | sudo bench setup production $USER && \
 sudo apt install nginx supervisor -y
-sudo mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old
-sudo cp $script_folder/nginx.conf /etc/nginx/nginx.conf
-chmod o+r /etc/nginx/nginx.conf
-sudo bash -c 'cat << EOF >> /etc/nginx/conf.d/dokos-bench-folder.conf
-upstream dokos-bench-folder-frappe {
+#sudo mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old
+#sudo cp $script_folder/nginx.conf /etc/nginx/nginx.conf
+#chmod o+r /etc/nginx/nginx.conf
+sudo bash -c 'cat << EOF >> /etc/nginx/conf.d/'"$bench_folder"'.conf
+upstream '"$bench_folder"'-frappe {
 	server 127.0.0.1:8000 fail_timeout=0;
 }
 
-upstream dokos-bench-folder-socketio-server {
+upstream '"$bench_folder"'-socketio-server {
 	server 127.0.0.1:9000 fail_timeout=0;
 }
-
-
-
-# setup maps
-
-
-# server blocks
-
-
-
-
 
 server {
 	
 	listen 80;
 	listen [::]:80;
-	
 
 	server_name '"$site_name"';
 
-	root '"$HOME"'/dokos-bench-folder/sites;
-
-	
+	root '"$benchdir"'/sites;
 
 	proxy_buffer_size 128k;
 	proxy_buffers 4 256k;
 	proxy_busy_buffers_size 256k;
-
-	
 
 	add_header X-Frame-Options "SAMEORIGIN";
 	add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
@@ -334,9 +334,9 @@ server {
 		proxy_set_header Connection "upgrade";
 		proxy_set_header X-Frappe-Site-Name '"$site_name"';
 		proxy_set_header Origin $scheme://\$http_host;
-		proxy_set_header Host \$host;
+		proxy_set_header Host '"$site_name"';
 
-		proxy_pass http://dokos-bench-folder-socketio-server;
+		proxy_pass http://'"$bench_folder"'-socketio-server;
 	}
 
 	location ^~ /.well-known/acme-challenge/ {
@@ -367,12 +367,12 @@ server {
 		proxy_set_header X-Forwarded-For \$remote_addr;
 		proxy_set_header X-Forwarded-Proto \$scheme;
 		proxy_set_header X-Frappe-Site-Name '"$site_name"';
-		proxy_set_header Host \$host;
+		proxy_set_header Host '"$site_name"';
 		proxy_set_header X-Use-X-Accel-Redirect True;
 		proxy_read_timeout 120;
 		proxy_redirect off;
 
-		proxy_pass  http://dokos-bench-folder-frappe;
+		proxy_pass  http://'"$bench_folder"'-frappe;
 	}
 
 	# error pages
@@ -381,18 +381,16 @@ server {
 		root /usr/local/lib/python3.10/dist-packages/bench/config/templates;
 		internal;
 	}
-
 	
-
 	# optimizations
 	sendfile on;
 	keepalive_timeout 15;
 	client_max_body_size 50m;
 	client_body_buffer_size 16K;
 	client_header_buffer_size 1k;
+	large_client_header_buffers 4 32k;
 
 	# enable gzip compresion
-	# based on https://mattstauffer.co/blog/enabling-gzip-on-nginx-servers-including-laravel-forge
 	gzip on;
 	gzip_http_version 1.1;
 	gzip_comp_level 5;
@@ -417,131 +415,125 @@ server {
 		text/plain
 		text/x-component
 		;
-		# text/html is always compressed by HttpGzipModule
+
+	tcp_nodelay on;
+	server_tokens off;
+
+	open_file_cache max=65000 inactive=1m;
+	open_file_cache_valid 5s;
+	open_file_cache_min_uses 1;
+	open_file_cache_errors on;
+
 }
 
 
 EOF'
 
-sudo bash -c 'cat << EOF >> /etc/supervisor/conf.d/dokos-bench-folder.conf
+sudo bash -c 'cat << EOF >> /etc/supervisor/conf.d/'"$bench_folder"'.conf
 ; Notes:
 ; priority=1 --> Lower priorities indicate programs that start first and shut down last
 ; killasgroup=true --> send kill signal to child processes too
 
-[program:dokos-bench-folder-frappe-web]
-command='"$HOME"'/dokos-bench-folder/env/bin/gunicorn -b 127.0.0.1:8000 -w 3 --max-requests 5000 --max-requests-jitter 500 -t 120 frappe.app:application --preload
+[program:'"$bench_folder"'-frappe-web]
+command='"$benchdir"'/env/bin/gunicorn -b 127.0.0.1:8000 -w 3 --max-requests 5000 --max-requests-jitter 500 -t 120 frappe.app:application --preload
 priority=4
 autostart=true
 autorestart=true
-stdout_logfile='"$HOME"'/dokos-bench-folder/logs/web.log
-stderr_logfile='"$HOME"'/dokos-bench-folder/logs/web.error.log
+stdout_logfile='"$benchdir"'/logs/web.log
+stderr_logfile='"$benchdir"'/logs/web.error.log
 user='"$USER"'
-directory='"$HOME"'/dokos-bench-folder/sites
+directory='"$benchdir"'/sites
 
-
-[program:dokos-bench-folder-frappe-schedule]
+[program:'"$bench_folder"'-frappe-schedule]
 command=/usr/local/bin/bench schedule
 priority=3
 autostart=true
 autorestart=true
-stdout_logfile='"$HOME"'/dokos-bench-folder/logs/schedule.log
-stderr_logfile='"$HOME"'/dokos-bench-folder/logs/schedule.error.log
+stdout_logfile='"$benchdir"'/logs/schedule.log
+stderr_logfile='"$benchdir"'/logs/schedule.error.log
 user='"$USER"'
-directory='"$HOME"'/dokos-bench-folder
+directory='"$benchdir"'
 
-[program:dokos-bench-folder-frappe-default-worker]
+[program:'"$bench_folder"'-frappe-default-worker]
 command=/usr/local/bin/bench worker --queue default
 priority=4
 autostart=true
 autorestart=true
-stdout_logfile='"$HOME"'/dokos-bench-folder/logs/worker.log
-stderr_logfile='"$HOME"'/dokos-bench-folder/logs/worker.error.log
+stdout_logfile='"$benchdir"'/logs/worker.log
+stderr_logfile='"$benchdir"'/logs/worker.error.log
 user='"$USER"'
 stopwaitsecs=1560
-directory='"$HOME"'/dokos-bench-folder
+directory='"$benchdir"'
 killasgroup=true
 numprocs=1
 process_name=%(program_name)s-%(process_num)d
 
-[program:dokos-bench-folder-frappe-short-worker]
+[program:'"$bench_folder"'-frappe-short-worker]
 command=/usr/local/bin/bench worker --queue short
 priority=4
 autostart=true
 autorestart=true
-stdout_logfile='"$HOME"'/dokos-bench-folder/logs/worker.log
-stderr_logfile='"$HOME"'/dokos-bench-folder/logs/worker.error.log
+stdout_logfile='"$benchdir"'/logs/worker.log
+stderr_logfile='"$benchdir"'/logs/worker.error.log
 user='"$USER"'
 stopwaitsecs=360
-directory='"$HOME"'/dokos-bench-folder
+directory='"$benchdir"'
 killasgroup=true
 numprocs=1
 process_name=%(program_name)s-%(process_num)d
 
-[program:dokos-bench-folder-frappe-long-worker]
+[program:'"$bench_folder"'-frappe-long-worker]
 command=/usr/local/bin/bench worker --queue long
 priority=4
 autostart=true
 autorestart=true
-stdout_logfile='"$HOME"'/dokos-bench-folder/logs/worker.log
-stderr_logfile='"$HOME"'/dokos-bench-folder/logs/worker.error.log
+stdout_logfile='"$benchdir"'/logs/worker.log
+stderr_logfile='"$benchdir"'/logs/worker.error.log
 user='"$USER"'
 stopwaitsecs=1560
-directory='"$HOME"'/dokos-bench-folder
+directory='"$benchdir"'
 killasgroup=true
 numprocs=1
 process_name=%(program_name)s-%(process_num)d
 
-
-
-
-
-
-[program:dokos-bench-folder-redis-cache]
-command=/usr/bin/redis-server '"$HOME"'/dokos-bench-folder/config/redis_cache.conf
+[program:'"$bench_folder"'-redis-cache]
+command=/usr/bin/redis-server '"$benchdir"'/config/redis_cache.conf
 priority=1
 autostart=true
 autorestart=true
-stdout_logfile='"$HOME"'/dokos-bench-folder/logs/redis-cache.log
-stderr_logfile='"$HOME"'/dokos-bench-folder/logs/redis-cache.error.log
+stdout_logfile='"$benchdir"'/logs/redis-cache.log
+stderr_logfile='"$benchdir"'/logs/redis-cache.error.log
 user='"$USER"'
-directory='"$HOME"'/dokos-bench-folder/sites
+directory='"$benchdir"'/sites
 
-[program:dokos-bench-folder-redis-queue]
-command=/usr/bin/redis-server '"$HOME"'/dokos-bench-folder/config/redis_queue.conf
+[program:'"$bench_folder"'-redis-queue]
+command=/usr/bin/redis-server '"$benchdir"'/config/redis_queue.conf
 priority=1
 autostart=true
 autorestart=true
-stdout_logfile='"$HOME"'/dokos-bench-folder/logs/redis-queue.log
-stderr_logfile='"$HOME"'/dokos-bench-folder/logs/redis-queue.error.log
+stdout_logfile='"$benchdir"'/logs/redis-queue.log
+stderr_logfile='"$benchdir"'/logs/redis-queue.error.log
 user='"$USER"'
-directory='"$HOME"'/dokos-bench-folder/sites
+directory='"$benchdir"'/sites
 
-
-
-[program:dokos-bench-folder-node-socketio]
-command=/usr/bin/node '"$HOME"'/dokos-bench-folder/apps/frappe/socketio.js
+[program:'"$bench_folder"'-node-socketio]
+command=/usr/bin/node '"$benchdir"'/apps/frappe/socketio.js
 priority=4
 autostart=true
 autorestart=true
-stdout_logfile='"$HOME"'/dokos-bench-folder/logs/node-socketio.log
-stderr_logfile='"$HOME"'/dokos-bench-folder/logs/node-socketio.error.log
+stdout_logfile='"$benchdir"'/logs/node-socketio.log
+stderr_logfile='"$benchdir"'/logs/node-socketio.error.log
 user='"$USER"'
-directory='"$HOME"'/dokos-bench-folder
+directory='"$benchdir"'
 
+[group:'"$bench_folder"'-web]
+programs='"$bench_folder"'-frappe-web,'"$bench_folder"'-node-socketio
 
-[group:dokos-bench-folder-web]
-programs=dokos-bench-folder-frappe-web,dokos-bench-folder-node-socketio
+[group:'"$bench_folder"'-workers]
+programs='"$bench_folder"'-frappe-schedule,'"$bench_folder"'-frappe-default-worker,'"$bench_folder"'-frappe-short-worker,'"$bench_folder"'-frappe-long-worker
 
-
-
-[group:dokos-bench-folder-workers]
-programs=dokos-bench-folder-frappe-schedule,dokos-bench-folder-frappe-default-worker,dokos-bench-folder-frappe-short-worker,dokos-bench-folder-frappe-long-worker
-
-
-
-
-[group:dokos-bench-folder-redis]
-programs=dokos-bench-folder-redis-cache,dokos-bench-folder-redis-queue
+[group:'"$bench_folder"'-redis]
+programs='"$bench_folder"'-redis-cache,'"$bench_folder"'-redis-queue
 EOF'
 
 echo -e "${YELLOW}Applying necessary permissions to supervisor...${NC}"
