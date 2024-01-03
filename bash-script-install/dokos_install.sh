@@ -238,8 +238,8 @@ sudo mysql -u root -e "CREATE DATABASE IF NOT EXISTS $db_name CHARACTER SET utf8
 sudo mysql -u root -e "GRANT ALL PRIVILEGES ON $db_name . * TO '$db_name'@'localhost';"
 sudo mysql -u root -e "FLUSH PRIVILEGES;"
 
-echo -e "${YELLOW}...And add some settings to /etc/mysql/my.cnf:${NC}"
-sleep 2
+#echo -e "${YELLOW}...And add some settings to /etc/mysql/my.cnf:${NC}"
+#sleep 2
 
 #sudo bash -c 'cat << EOF >> /etc/mysql/my.cnf
 #[mysqld]
