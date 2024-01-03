@@ -258,7 +258,7 @@ bench get-app --branch v4 hrms
 
 echo -e "${YELLOW}Installing the website and initalising its database. Please wait...${NC}"
 sleep 1
-#Let's make the command bench new-site check value of character_set_database and collation_database insteadf of character_set_server and collation_server
+#Let's make the command bench new-site check value of character_set_database and collation_database instead of character_set_server and collation_server
 sed -i 's/"character_set_server": "utf8mb4",/"character_set_database": "utf8mb4",/g' $benchdir/apps/frappe/frappe/database/mariadb/setup_db.py
 sed -i 's/"collation_server": "utf8mb4_unicode_ci",/"collation_database": "utf8mb4_unicode_ci",/g' $benchdir/apps/frappe/frappe/database/mariadb/setup_db.py
 
