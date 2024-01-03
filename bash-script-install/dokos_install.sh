@@ -238,19 +238,6 @@ sudo mysql -u root -e "CREATE DATABASE IF NOT EXISTS $db_name CHARACTER SET utf8
 sudo mysql -u root -e "GRANT ALL PRIVILEGES ON $db_name . * TO '$db_name'@'localhost';"
 sudo mysql -u root -e "FLUSH PRIVILEGES;"
 
-#echo -e "${YELLOW}...And add some settings to /etc/mysql/my.cnf:${NC}"
-#sleep 2
-
-#sudo bash -c 'cat << EOF >> /etc/mysql/my.cnf
-#[mysqld]
-#character-set-client-handshake = FALSE
-#character-set-server = utf8mb4
-#collation-server = utf8mb4_unicode_ci
-
-#[mysql]
-#default-character-set = utf8mb4
-#EOF'
-
 #sudo service mysql restart
 echo -e "${GREEN}MariaDB settings done!${NC}"
 echo -e "\n"
@@ -263,34 +250,27 @@ cd $bench_folder && \
 
 sudo chmod -R o+rx /home/$(echo $USER)
 
+echo -e "${YELLOW}Installing apps Payments, Dokos and Hrms to the bench. Please wait...${NC}"
+sleep 1
 bench get-app --branch v4 payments
 bench get-app --branch v4 dokos
 bench get-app --branch v4 hrms
 
-#to trick the command bench new-site which check value of character_set_server and collation_server even though we created a database setting character and collation for the database itself
- 
-character_set_server=$(sudo mysql -u root -ss -N -e "SELECT VARIABLE_VALUE FROM information_schema.GLOBAL_VARIABLES WHERE  variable_name ='character_set_server';")
-collation_server=$(sudo mysql -u root -ss -N -e "SELECT VARIABLE_VALUE FROM information_schema.GLOBAL_VARIABLES WHERE  variable_name ='collation_server';")
-sudo mysql -u root -e "SET GLOBAL character_set_server = 'utf8mb4'";
-sudo mysql -u root -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci'";
+echo -e "${YELLOW}Installing the website and initalising its database. Please wait...${NC}"
+sleep 1
+#Let's make the command bench new-site check value of character_set_database and collation_database insteadf of character_set_server and collation_server
+sed -i 's/"character_set_server": "utf8mb4",/"character_set_database": "utf8mb4",/g' $benchdir/apps/frappe/frappe/database/mariadb/setup_db.py
+sed -i 's/"collation_server": "utf8mb4_unicode_ci",/"collation_database": "utf8mb4_unicode_ci",/g' $benchdir/apps/frappe/frappe/database/mariadb/setup_db.py
 
 bench new-site $site_name --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $admin_pwd
-
-# putting back the original value of character_set_server and collation_server
-sudo mysql -u root -e "SET GLOBAL character_set_server = '$character_set_server'";
-sudo mysql -u root -e "SET GLOBAL collation_server = '$collation_server'";
 
 ### fail2ban était installé et paramétré par la commande "sudo bench setup production $USER" mais n'est plus traité dans ce script du coup
 
 echo -e "${YELLOW}Installing packages and dependencies for Production...${NC}"
 sleep 2
 
-# Setup supervisor and nginx config
-#yes | sudo bench setup production $USER && \
+# Install and setup supervisor and nginx config
 sudo apt install nginx supervisor -y
-#sudo mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old
-#sudo cp $script_folder/nginx.conf /etc/nginx/nginx.conf
-#chmod o+r /etc/nginx/nginx.conf
 sudo bash -c 'cat << EOF >> /etc/nginx/conf.d/'"$bench_folder"'.conf
 upstream '"$bench_folder"'-frappe {
 	server 127.0.0.1:8000 fail_timeout=0;
@@ -552,15 +532,15 @@ sudo service supervisor restart
 /usr/bin/supervisorctl update
 sudo service nginx reload
 
-# Setup production again to reflect the new site
-#yes | sudo bench setup production $USER && \
-
 echo -e "${YELLOW}Enabling Scheduler...${NC}"
 sleep 1
 
 # Enable and resume the scheduler for the site
 bench --site $site_name scheduler enable && \
 bench --site $site_name scheduler resume && \
+
+echo -e "${YELLOW}Adding apps Payments, Dokos and Hrms to your website.${NC}"
+sleep 1
 bench --site $site_name install-app payments
 bench --site $site_name install-app dokos
 bench --site $site_name install-app hrms
