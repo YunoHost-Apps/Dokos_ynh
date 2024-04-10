@@ -128,9 +128,6 @@ py_version=$(python3 --version 2>&1 | awk '{print $2}')
 py_major=$(echo "$py_version" | cut -d '.' -f 1)
 py_minor=$(echo "$py_version" | cut -d '.' -f 2)
 py_version=$(echo "$py_major"."$py_minor")
-echo -e "${YELLOW}Installing python environment manager and other requirements...${NC}"
-sleep 2
-echo -e "\n"
 echo -e "${YELLOW}Installing additional Python packages and Redis Server${NC}"
 sleep 2
 sudo apt install ca-certificates git python3-dev python3-setuptools python3-venv python3-pip python3-distutils redis-server xvfb libfontconfig wkhtmltopdf -y && \
