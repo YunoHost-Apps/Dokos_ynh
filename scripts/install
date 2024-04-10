@@ -34,6 +34,18 @@ source /usr/share/yunohost/helpers
 #
 
 #=================================================
+# SETUP NGINX
+#=================================================
+
+ynh_add_nginx_config
+
+#=================================================
+# SETUP LOGS
+#=================================================
+
+yunohost service add $app --log="/var/log/$app/$app.log"
+
+#=================================================
 # INSTALL DEPENDENCIES
 #=================================================
 
@@ -42,6 +54,23 @@ ynh_script_progression --message="Installing NodeJS..." --weight=10
 # Install Nodejs
 ynh_exec_warn_less ynh_install_nodejs --nodejs_version=$nodejs_version
 ynh_use_nodejs
+
+#=================================================
+# SETUP SUPERVISOR
+#=================================================
+ynh_script_progression --message="Configuring a supervisor service..." --weight=1
+
+# Create a dedicated supervisor config
+ynh_add_supervisor_config --service="${app}-horizon" --template=horizon.conf
+
+#=================================================
+# SETUP LOGROTATE
+#=================================================
+ynh_script_progression --message="Configuring log rotation..." --weight=1
+
+# Use logrotate to manage application logfile(s)
+ynh_use_logrotate --logfile="/var/log/$app/${app}.log"
+ynh_use_logrotate --logfile="/var/log/$app/${app}-horizon.log"
 
 #=================================================
 # APP "BUILD" (DEPLOYING SOURCES, VENV, COMPILING ETC)
@@ -155,13 +184,19 @@ popd
 # REMOVEME? ynh_local_curl "/INSTALL_PATH" "key1=value1" "key2=value2" "key3=value3"
 
 #=================================================
-# START SYSTEMD SERVICE
+# INTEGRATE SERVICE IN YUNOHOST
 #=================================================
-ynh_script_progression --message="Starting app's systemd service..."
+ynh_script_progression --message="Integrating service in YunoHost..." --weight=1
 
-# Start a systemd service
-ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log"
+yunohost service add "supervisor" --description="Supervisor daemon for $app" --log="/var/log/$app/${app}-horizon.log"
 
+#=================================================
+# START SUPERVISOR SERVICE
+#=================================================
+ynh_script_progression --message="Starting a supervisor service..." --weight=1
+
+# Start a supervisor service
+ynh_supervisor_action --service_name="${app}-horizon" --action="reload" --log_path="systemd" --line_match="success: ${app}-horizon"
 #=================================================
 # END OF SCRIPT
 #=================================================

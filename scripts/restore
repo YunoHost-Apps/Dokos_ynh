@@ -38,26 +38,58 @@ ynh_restore_file --origin_path="$data_dir" --not_mandatory
 chown -R $app:www-data "$data_dir"
 
 #=================================================
-# RESTORE THE MYSQL DATABASE
-#=================================================
-
-#=================================================
 # RESTORE SYSTEM CONFIGURATIONS
 #=================================================
 ynh_script_progression --message="Restoring system configurations related to $app..." --weight=1
 
 # This should be a symetric version of what happens in the install script
 
+#=================================================
+# RESTORE THE NGINX CONFIGURATION
+#=================================================
+ynh_script_progression --message="Restoring the NGINX web server configuration..." --weight=1
+
 ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 
-ynh_restore_file --origin_path="/etc/systemd/system/$app.service"
-systemctl enable $app.service --quiet
+#=================================================
+# RESTORE THE MYSQL DATABASE
+#=================================================
+
+
+#=================================================
+# RESTORE SUPERVISOR CONFIGURATION
+#=================================================
+ynh_script_progression --message="Restoring the supervisor configuration..." --weight=1
+
+ynh_restore_file --origin_path="/etc/supervisor/conf.d/${app}-horizon.conf"
+supervisorctl reread && supervisorctl update
+
+#=================================================
+# RESTORE LOGS
+#=================================================
 
 yunohost service add $app --log="/var/log/$app/$app.log"
 
+#=================================================
+# RESTORE THE LOGROTATE CONFIGURATION
+#=================================================
+ynh_script_progression --message="Restoring the logrotate configuration..." --weight=1
+
 ynh_restore_file --origin_path="/etc/logrotate.d/$app"
 
-# Other various files...
+#=================================================
+# INTEGRATE SERVICE IN YUNOHOST
+#=================================================
+ynh_script_progression --message="Integrating service in YunoHost..." --weight=1
+
+yunohost service add "supervisor" --description="Supervisor daemon for $app" --log="/var/log/$app/${app}-horizon.log"
+
+#=================================================
+# START SUPERVISOR SERVICE
+#=================================================
+ynh_script_progression --message="Starting a supervisor service..." --weight=1
+
+ynh_supervisor_action --service_name="${app}-horizon" --action="reload" --log_path="systemd" --line_match="success: ${app}-horizon"
 
 #=================================================
 # RELOAD NGINX AND PHP-FPM OR THE APP SERVICE

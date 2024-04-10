@@ -14,11 +14,15 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
-# STOP SYSTEMD SERVICE
+# STANDARD MODIFICATIONS
 #=================================================
-ynh_script_progression --message="Stopping a systemd service..."
+# STOP SUPERVISOR SERVICE
+#=================================================
+ynh_script_progression --message="Stopping a supervisor service..." --weight=1
 
-ynh_systemd_action --service_name=$app --action="stop" --log_path="/var/log/$app/$app.log"
+ynh_supervisor_action --service_name="${app}-horizon" --action="stop" --log_path="/var/log/$app/${app}-horizon.log"
+
+#ynh_systemd_action --service_name=$app --action="stop" --log_path="/var/log/$app/$app.log"
 
 #=================================================
 # MODIFY URL IN NGINX CONF
@@ -34,11 +38,15 @@ ynh_change_url_nginx_config
 #=================================================
 
 #=================================================
-# START SYSTEMD SERVICE
+# GENERIC FINALISATION
 #=================================================
-ynh_script_progression --message="Starting a systemd service..."
+# START SUPERVISOR SERVICE
+#=================================================
+ynh_script_progression --message="Starting a supervisor service..." --weight=1
 
-ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log"
+ynh_supervisor_action --service_name="${app}-horizon" --action="start" --log_path="systemd" --line_match="success: ${app}-horizon"
+
+#ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log"
 
 #=================================================
 # END OF SCRIPT
