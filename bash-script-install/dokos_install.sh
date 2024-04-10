@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 
 # Checking Supported OS and distribution
 SUPPORTED_DISTRIBUTIONS=("Ubuntu" "Debian")
-SUPPORTED_VERSIONS=("22.04" "11" "12")
+SUPPORTED_VERSIONS=("22.04" "12")
 
 check_os() {
     local os_name=$(lsb_release -is)
@@ -124,35 +124,12 @@ sleep 3
 sudo apt install software-properties-common git curl -y
 
 #Next we'll install the python environment manager...
-echo -e "${YELLOW}Installing python environment manager and other requirements...${NC}"
-sleep 2
-
-# Install Python 3.10 if not already installed or version is less than 3.10
 py_version=$(python3 --version 2>&1 | awk '{print $2}')
 py_major=$(echo "$py_version" | cut -d '.' -f 1)
 py_minor=$(echo "$py_version" | cut -d '.' -f 2)
-
-if [ -z "$py_version" ] || [ "$py_major" -lt 3 ] || [ "$py_major" -eq 3 -a "$py_minor" -lt 10 ]; then
-    echo -e "${LIGHT_BLUE}It appears this instance does not meet the minimum Python version required for Dokos 3 (Python3.10)...${NC}"
-    sleep 2 
-    echo -e "${YELLOW}Not to worry, we will sort it out for you${NC}"
-    sleep 4
-    echo -e "${YELLOW}Installing Python 3.10+...${NC}"
-    sleep 2
-    sudo apt -qq install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev wget libbz2-dev -y && \
-    wget https://www.python.org/ftp/python/3.10.11/Python-3.10.11.tgz && \
-    tar -xf Python-3.10.11.tgz && \
-    cd Python-3.10.11 && \
-    ./configure --prefix=/usr/local --enable-optimizations --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib" && \
-    make -j $(nproc) && \
-    sudo make altinstall && \
-    cd .. && \
-    sudo rm -rf Python-3.10.11 && \
-    sudo rm Python-3.10.11.tgz && \
-    pip3.10 install --user --upgrade pip && \
-    echo -e "${GREEN}Python3.10 installation successful!${NC}"
-    sleep 2
-fi
+py_version=$(echo "$py_major"."$py_minor")
+echo -e "${YELLOW}Installing python environment manager and other requirements...${NC}"
+sleep 2
 echo -e "\n"
 echo -e "${YELLOW}Installing additional Python packages and Redis Server${NC}"
 sleep 2
@@ -196,11 +173,9 @@ sleep 2
 # Now let's reactivate virtual environment if needed and install bench
 echo -e "${YELLOW}Now let's reactivate virtual environment if needed and install bench${NC}"
 sleep 4
-if [ -z "$py_version" ] || [ "$py_major" -lt 3 ] || [ "$py_major" -eq 3 -a "$py_minor" -lt 10 ]; then
-    python3.10 -m venv $USER && \
-    source $USER/bin/activate
-    nvm use $node_version
-fi
+python3 -m venv $USER && \
+source $USER/bin/activate
+nvm use $node_version
 pip3 install --upgrade --quiet dokos-cli
 
 
@@ -258,9 +233,6 @@ bench get-app --branch v4 hrms
 
 echo -e "${YELLOW}Installing the website and initalising its database. Please wait...${NC}"
 sleep 1
-#Let's make the command bench new-site check value of character_set_database and collation_database instead of character_set_server and collation_server
-sed -i 's/"character_set_server": "utf8mb4",/"character_set_database": "utf8mb4",/g' $benchdir/apps/frappe/frappe/database/mariadb/setup_db.py
-sed -i 's/"collation_server": "utf8mb4_unicode_ci",/"collation_database": "utf8mb4_unicode_ci",/g' $benchdir/apps/frappe/frappe/database/mariadb/setup_db.py
 
 bench new-site $site_name --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $admin_pwd
 
@@ -358,7 +330,7 @@ server {
 	# error pages
 	error_page 502 /502.html;
 	location /502.html {
-		root /usr/local/lib/python3.10/dist-packages/bench/config/templates;
+		root /usr/local/lib/python'"$py_version"'/dist-packages/bench/config/templates;
 		internal;
 	}
 	
@@ -405,8 +377,6 @@ server {
 	open_file_cache_errors on;
 
 }
-
-
 EOF'
 
 sudo bash -c 'cat << EOF >> /etc/supervisor/conf.d/'"$bench_folder"'.conf
