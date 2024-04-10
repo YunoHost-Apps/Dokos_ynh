@@ -1,22 +1,19 @@
 [Unit]
-Description=Service for Dokos (__APP__)
-After=network.target
+Description="__APP__-frappe-default-worker"
+PartOf=__APP__-workers.target
 
 [Service]
-Type=simple
 User=__APP__
 Group=__APP__
+Restart=always
+ExecStart=__INSTALL_DIR__/bin/bench worker --queue default
+StandardOutput=file:__INSTALL_DIR__/dokos-bench-folder/logs/default-worker.log
+StandardError=file:__INSTALL_DIR__/dokos-bench-folder/logs/worker.error.log
+WorkingDirectory=__INSTALL_DIR__/dokos-bench-folder
 
-WorkingDirectory=__INSTALL_DIR__/
-ExecStart=
-StandardOutput=append:/var/log/__APP__/__APP__.log
-StandardError=inherit
-Restart=on-failure
-RestartSec=10
-
+### Depending on specificities of your service/app, you may need to tweak these
+### .. but this should be a good baseline
 # Sandboxing options to harden security
-# Depending on specificities of your service/app, you may need to tweak these
-# .. but this should be a good baseline
 # Details for these options: https://www.freedesktop.org/software/systemd/man/systemd.exec.html
 NoNewPrivileges=yes
 PrivateTmp=yes
@@ -47,6 +44,3 @@ CapabilityBoundingSet=~CAP_SYS_TTY_CONFIG
 CapabilityBoundingSet=~CAP_MAC_ADMIN CAP_MAC_OVERRIDE
 CapabilityBoundingSet=~CAP_NET_ADMIN CAP_NET_BROADCAST CAP_NET_RAW
 CapabilityBoundingSet=~CAP_SYS_ADMIN CAP_SYS_PTRACE CAP_SYSLOG
-
-[Install]
-WantedBy=multi-user.target
