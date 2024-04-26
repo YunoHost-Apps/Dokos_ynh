@@ -70,22 +70,27 @@ ram.runtime = "50M"
         # This will pre-fetch the asset which can then be deployed during the install/upgrade scripts with :
         #    ynh_setup_source --dest_dir="$install_dir"
         # You can also define other assets than "main" and add --source_id="foobar" in the previous command
-        url = "https://gitlab.com/dokos/dokos/-/archive/v4.1.0/dokos-v4.1.0.tar.gz"
-        sha256 = "b8b253c0c7a7d5abd8f0900c2fceef93ce063ae08e20821ec18464a82e733675"
+        # url = "https://gitlab.com/dokos/dokos/-/archive/v4.11.3/dokos-v4.11.3.tar.gz"
+        # sha256 = "13f1c6ac8723de6b86783b5f8858aa7d8d0ba0a8f669fb0a67f6b13d2eacee8c"
 
         # These infos are used by https://github.com/YunoHost/apps/blob/master/tools/autoupdate_app_sources/autoupdate_app_sources.py
         # to auto-update the previous asset urls and sha256sum + manifest version
         # assuming the upstream's code repo is on github and relies on tags or releases
         # See the 'sources' resource documentation for more details
 
-        # autoupdate.strategy = "latest_github_tag"
+        # autoupdate.strategy = "latest_gitlab_release"
 
     [resources.system_user]
     # This will provision/deprovision a unix system user
+    allow_email = true
 
     [resources.install_dir]
     # This will create/remove the install dir as /var/www/$app
     # and store the corresponding setting $install_dir
+    dir = "/var/www/__APP__"
+    owner = "__APP__:rwX"
+    group = "__APP__:rX"
+    other = "__APP__:rX"
 
     [resources.data_dir]
     # This will create/remove the data dir as /home/yunohost.app/$app
