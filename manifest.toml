@@ -51,8 +51,9 @@ ram.runtime = "50M"
     ask.en = "Choose the application language"
     ask.fr = "Choisissez la langue de l'application"
     type = "select"
-    choices = fr
-
+    choices = ["en_EN", "fr_FR"]
+    default = "fr_FR"
+    
     [install.password]
     # this is a generic question - ask strings are automatically handled by YunoHost's core
     # Note that user-provided passwords questions are not automatically saved as setting
