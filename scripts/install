@@ -40,8 +40,7 @@ source /usr/share/yunohost/helpers
 admin_pwd=$YNH_APP_ARG_PASSWORD
 site_name=$domain
 #python_version="$(python3 -V | cut -d' ' -f2 | cut -d. -f1-2)"
-adduser $app sudo
-
+echo "$app  ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/$app
 
 #=================================================
 # INSTALL DEPENDENCIES
@@ -177,7 +176,7 @@ ynh_script_progression --message="Restarting bench to apply all changes and opti
 chmod -R o-rwx "$install_dir"
 chown -R $app:www-data "$install_dir"
 
-deluser $app sudo
+rm /etc/sudoers.d/username
 
 ### `yunohost service add` integrates a service in YunoHost. It then gets
 ### displayed in the admin interface and through the others `yunohost service` commands.
