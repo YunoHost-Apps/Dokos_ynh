@@ -63,12 +63,11 @@ chmod 750 "$install_dir"
 chmod -R o-rwx "$install_dir"
 chown -R $app:www-data "$install_dir"
 
-#pushd $install_dir
-#ynh_use_nodejs
-#ynh_exec_as $app $ynh_node_load_PATH yarn install --production --pure-lockfile
+pushd $install_dir
+    ynh_use_nodejs
+#   ynh_exec_as $app $ynh_node_load_PATH yarn install --production --pure-lockfile
 	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn install --network-timeout=100000
-
-#popd
+popd
 
 chmod 750 "$install_dir"
 chmod -R o-rwx "$install_dir"
