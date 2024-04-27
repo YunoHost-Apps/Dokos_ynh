@@ -106,17 +106,19 @@ ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
 #=================================================
 ynh_script_progression --message="Installing $app CLI..." --weight=30
 
-pushd $install_dir/dokos-bench-folder/
+pushd $install_dir
     ynh_use_nodejs
 
     $pip3 install --upgrade dokos-cli
 
     ynh_script_progression --message="Installing Dodock (frappe)..." --weight=30
 
-    bench init $install_dir --version v4
+    mkdir $install_dir/dokos-bench-folder
+    bench init $install_dir/dokos-bench-folder --version v4
 
     ynh_script_progression --message="Installing $app..." --weight=30
 
+    cd $install_dir/dokos-bench-folder
     bench get-app --branch v4 dokos
 
     ynh_script_progression --message="Installing $app applications..." --weight=30
@@ -128,6 +130,11 @@ pushd $install_dir/dokos-bench-folder/
 
     bench new-site $site_name --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $admin_pwd
 popd
+
+chmod -R o-r "$install_dir"
+chmod -R g-rx "$install_dir"
+chmod 755 "$install_dir"
+chown -R $app:www-data "$install_dir"
 
 #=================================================
 # SYSTEM CONFIGURATION
