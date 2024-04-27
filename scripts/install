@@ -102,25 +102,25 @@ pushd $install_dir
     ynh_use_nodejs
 
     $pip3 install --upgrade dokos-cli
-    bench=$(sudo -u $user $install_dir/bin/bench)
+#    bench=$(sudo -u $user $install_dir/bin/bench)
 
     ynh_script_progression --message="Installing Dodock (frappe)..." --weight=30
 
-    $bench init $install_dir/dokos-bench-folder --version v4
+    sudo -u $user $install_dir/bin/bench init $install_dir/dokos-bench-folder --version v4
 
     ynh_script_progression --message="Installing $app..." --weight=30
 
     cd $install_dir/dokos-bench-folder
-    $bench get-app --branch v4 dokos
+    sudo -u $user $install_dir/bin/bench get-app --branch v4 dokos
 
     ynh_script_progression --message="Installing $app applications..." --weight=30
 
-    $bench get-app --branch v4 payments
-    $bench get-app --branch v4 hrms
+    sudo -u $user $install_dir/bin/bench get-app --branch v4 payments
+    sudo -u $user $install_dir/bin/bench get-app --branch v4 hrms
 
     ynh_script_progression --message="Installing $app new site..." --weight=30
 
-    $bench new-site $site_name --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $admin_pwd
+    sudo -u $user $install_dir/bin/bench new-site $site_name --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $admin_pwd
 popd
 
 chmod -R o-r "$install_dir"
@@ -158,14 +158,14 @@ sudo service nginx reload
 # Enable and resume the scheduler for the site
 pushd $install_dir/dokos-bench-folder
     ynh_use_nodejs
-    $bench --site $site_name scheduler enable && \
-    $bench --site $site_name scheduler resume && \
+    sudo -u $user $install_dir/bin/bench --site $site_name scheduler enable && \
+    sudo -u $user $install_dir/bin/bench --site $site_name scheduler resume && \
 
     ynh_script_progression --message="Adding apps Payments, Dokos and Hrms to your website.${NC}"
 
-    $bench --site $site_name install-app payments
-    $bench --site $site_name install-app dokos
-    $bench --site $site_name install-app hrms
+    sudo -u $user $install_dir/bin/bench --site $site_name install-app payments
+    sudo -u $user $install_dir/bin/bench --site $site_name install-app dokos
+    sudo -u $user $install_dir/bin/bench --site $site_name install-app hrms
 popd
 
 ynh_script_progression --message="Restarting bench to apply all changes and optimizing environment pernissions.${NC}"
