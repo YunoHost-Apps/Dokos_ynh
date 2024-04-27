@@ -39,8 +39,7 @@ source /usr/share/yunohost/helpers
 
 admin_pwd=$YNH_APP_ARG_PASSWORD
 site_name=$domain
-user=$app
-python_version="$(python3 -V | cut -d' ' -f2 | cut -d. -f1-2)"
+#python_version="$(python3 -V | cut -d' ' -f2 | cut -d. -f1-2)"
 
 
 #=================================================
@@ -102,28 +101,28 @@ pushd $install_dir
     ynh_use_nodejs
 
     $pip3 install --upgrade dokos-cli
-#    bench=$(ynh_exec_as $user $install_dir/bin/bench)
+#    bench=$(ynh_exec_as $app $install_dir/bin/bench)
 
     ynh_script_progression --message="Installing Dodock (frappe)..." --weight=30
 
-    ynh_exec_warn_less ynh_exec_as $user $install_dir/bin/bench init $install_dir/dokos-bench-folder --version v4
+    ynh_exec_warn_less ynh_exec_as $app $install_dir/bin/bench init $install_dir/dokos-bench-folder --version v4 --verbose
 
     ynh_script_progression --message="Installing $app..." --weight=30
 
     cd $install_dir/dokos-bench-folder
-    ynh_exec_as $user $install_dir/bin/bench get-app --branch v4 dokos
+    ynh_exec_as $app $install_dir/bin/bench get-app --branch v4 dokos
 
     ynh_script_progression --message="Installing $app applications payments..." --weight=30
 
-    ynh_exec_as $user $install_dir/bin/bench get-app --branch v4 payments
+    ynh_exec_as $app $install_dir/bin/bench get-app --branch v4 payments
 
     ynh_script_progression --message="Installing $app applications hrms..." --weight=30
 
-    ynh_exec_as $user $install_dir/bin/bench get-app --branch v4 hrms
+    ynh_exec_as $app $install_dir/bin/bench get-app --branch v4 hrms
 
     ynh_script_progression --message="Installing $app new site..." --weight=30
 
-    ynh_exec_as $user $install_dir/bin/bench new-site $site_name --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $admin_pwd
+    ynh_exec_as $app $install_dir/bin/bench new-site $site_name --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $admin_pwd
 popd
 
 chmod -R o-r "$install_dir"
@@ -149,7 +148,7 @@ ynh_script_progression --message="Configuring a supervisor service..." --weight=
 
 # Create a dedicated supervisor config
 # Change ownership of supervisord.conf
-sudo sed -i '6i chown='"$user"':'"$user"'' /etc/supervisor/supervisord.conf && \
+sudo sed -i '6i chown='"$app"':'"$app"'' /etc/supervisor/supervisord.conf && \
 
 # Restart nginx and supervisor
 sudo service nginx restart
@@ -161,14 +160,14 @@ sudo service nginx reload
 # Enable and resume the scheduler for the site
 pushd $install_dir/dokos-bench-folder
     ynh_use_nodejs
-    ynh_exec_as $user $install_dir/bin/bench --site $site_name scheduler enable && \
-    ynh_exec_as $user $install_dir/bin/bench --site $site_name scheduler resume && \
+    ynh_exec_as $app $install_dir/bin/bench --site $site_name scheduler enable && \
+    ynh_exec_as $app $install_dir/bin/bench --site $site_name scheduler resume && \
 
     ynh_script_progression --message="Adding apps Payments, Dokos and Hrms to your website.${NC}"
 
-    ynh_exec_as $user $install_dir/bin/bench --site $site_name install-app payments
-    ynh_exec_as $user $install_dir/bin/bench --site $site_name install-app dokos
-    ynh_exec_as $user $install_dir/bin/bench --site $site_name install-app hrms
+    ynh_exec_as $app $install_dir/bin/bench --site $site_name install-app payments
+    ynh_exec_as $app $install_dir/bin/bench --site $site_name install-app dokos
+    ynh_exec_as $app $install_dir/bin/bench --site $site_name install-app hrms
 popd
 
 ynh_script_progression --message="Restarting bench to apply all changes and optimizing environment pernissions.${NC}"
