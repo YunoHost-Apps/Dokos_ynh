@@ -90,24 +90,21 @@ ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
 # INSTALL Dokos
 #=================================================
 ynh_script_progression --message="Installing $app CLI..." --weight=30
-chmod 750 "$install_dir"
-chmod -R o-rwx "$install_dir"
-chown -R $app:www-data "$install_dir"
+ynh_exec_as $app virtualenv --python=python3 --system-site-packages "${install_dir}/venv"
+(
+	set +o nounset
+	source "${install_dir}/venv/bin/activate"
+	set -o nounset
 
-pushd $install_dir
-    ynh_use_nodejs
-#   python3 -m venv $user && \
-#   source $user/bin/activate
-#    ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH nvm use $nodejs_version
-    ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH pip3 install --upgrade --quiet dokos-cli
-    bench init $install_dir --version v4
-popd
-chmod 750 "$install_dir"
-chmod -R o-rwx "$install_dir"
-chown -R $app:$app "$install_dir"
+	ynh_exec_warn_less ynh_exec_as $app env PATH=$PATH pip install --upgrade --quiet dokos-cli
+)
 
 pushd $install_dir/dokos-bench-folder
     ynh_use_nodejs
+
+    ynh_script_progression --message="Installing Dodock (frappe)..." --weight=30
+
+    bench init $install_dir --version v4
 
     ynh_script_progression --message="Installing $app..." --weight=30
 
