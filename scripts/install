@@ -40,6 +40,8 @@ source /usr/share/yunohost/helpers
 admin_pwd=$YNH_APP_ARG_PASSWORD
 site_name=$domain
 user=$app
+python_version="$(python3 -V | cut -d' ' -f2 | cut -d. -f1-2)"
+
 
 #=================================================
 # INSTALL DEPENDENCIES
@@ -49,6 +51,20 @@ ynh_script_progression --message="Installing NodeJS..." --weight=10
 
 # Install Nodejs
 ynh_exec_warn_less ynh_install_nodejs --nodejs_version=$nodejs_version
+
+# Install yarn
+ynh_script_progression --message="Installing yarn..." --weight=5
+
+ynh_npm install --global yarn
+
+pushd $install_dir
+    ynh_use_nodejs
+    ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn install --network-timeout=100000
+popd
+
+# Install virtualenv if it don't exist
+test -e $install_dir/bin/python3 || python3 -m venv $install_dir
+local pip3=$install_dir/bin/pip3
 
 #=================================================
 # SETUP LOGROTATE
@@ -65,7 +81,6 @@ ynh_script_progression --message="Updating the MySQL database with utf8..." --we
 
 ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
     <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
-
 
 #=================================================
 # APP "BUILD" (DEPLOYING SOURCES, VENV, COMPILING ETC)
@@ -90,16 +105,10 @@ ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
 # INSTALL Dokos
 #=================================================
 ynh_script_progression --message="Installing $app CLI..." --weight=30
-ynh_exec_as $app virtualenv --python=python3 --system-site-packages "${install_dir}/venv"
-(
-	set +o nounset
-	source "${install_dir}/venv/bin/activate"
-	set -o nounset
 
-	ynh_exec_warn_less ynh_exec_as $app env PATH=$PATH pip install --upgrade --quiet dokos-cli
-)
+$pip3 install --upgrade dokos-cli
 
-pushd $install_dir/dokos-bench-folder
+pushd $install_dir/dokos-bench-folder/
     ynh_use_nodejs
 
     ynh_script_progression --message="Installing Dodock (frappe)..." --weight=30
@@ -119,6 +128,7 @@ pushd $install_dir/dokos-bench-folder
 
     bench new-site $site_name --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $admin_pwd
 popd
+
 #=================================================
 # SYSTEM CONFIGURATION
 #=================================================
@@ -162,8 +172,8 @@ popd
 ynh_script_progression --message="Restarting bench to apply all changes and optimizing environment pernissions.${NC}"
 
 #Now to make sure the environment is fully setup
-sudo chmod 755 /home/$(echo $user)
-
+chmod -R o-rwx "$install_dir"
+chown -R $app:www-data "$install_dir"
 
 ### `yunohost service add` integrates a service in YunoHost. It then gets
 ### displayed in the admin interface and through the others `yunohost service` commands.
