@@ -102,7 +102,7 @@ pushd $install_dir
     ynh_use_nodejs
 
     $pip3 install --upgrade dokos-cli
-    bench=$install_dir/bin/bench
+    bench=$(sudo -u $user install_dir/bin/bench)
 
     ynh_script_progression --message="Installing Dodock (frappe)..." --weight=30
 
