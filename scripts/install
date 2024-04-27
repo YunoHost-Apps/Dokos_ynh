@@ -115,28 +115,31 @@ ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
 #=================================================
 ynh_script_progression --message="Installing $app CLI..." --weight=30
 
-python3 -m venv $user && \
-source $user/bin/activate
-nvm use $nodejs_version
-pip3 install --upgrade --quiet dokos-cli
-bench init $install_dir --version v4
+pushd $install_dir
+    ynh_use_nodejs
+#   python3 -m venv $user && \
+#   source $user/bin/activate
+    nvm use $nodejs_version
+    pip3 install --upgrade --quiet dokos-cli
+    bench init $install_dir --version v4
+popd
 
-cd $install_dir && \
+pushd $install_dir/dokos-bench-folder
+    ynh_use_nodejs
 
-ynh_script_progression --message="Installing $app..." --weight=30
+    ynh_script_progression --message="Installing $app..." --weight=30
 
-bench get-app --branch v4 dokos
+    bench get-app --branch v4 dokos
 
-ynh_script_progression --message="Installing $app applications..." --weight=30
+    ynh_script_progression --message="Installing $app applications..." --weight=30
 
-bench get-app --branch v4 payments
-bench get-app --branch v4 hrms
+    bench get-app --branch v4 payments
+    bench get-app --branch v4 hrms
 
-ynh_script_progression --message="Installing $app new site..." --weight=30
+    ynh_script_progression --message="Installing $app new site..." --weight=30
 
-
-bench new-site $site_name --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $admin_pwd
-
+    bench new-site $site_name --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $admin_pwd
+popd
 #=================================================
 # SYSTEM CONFIGURATION
 #=================================================
@@ -165,17 +168,19 @@ sudo service supervisor restart
 sudo service nginx reload
 
 # Enable and resume the scheduler for the site
-bench --site $site_name scheduler enable && \
-bench --site $site_name scheduler resume && \
+pushd $install_dir/dokos-bench-folder
+    ynh_use_nodejs
+    bench --site $site_name scheduler enable && \
+    bench --site $site_name scheduler resume && \
 
-echo -e "${YELLOW}Adding apps Payments, Dokos and Hrms to your website.${NC}"
-sleep 1
-bench --site $site_name install-app payments
-bench --site $site_name install-app dokos
-bench --site $site_name install-app hrms
+    ynh_script_progression --message="Adding apps Payments, Dokos and Hrms to your website.${NC}"
 
-echo -e "${YELLOW}Restarting bench to apply all changes and optimizing environment pernissions.${NC}"
-sleep 1
+    bench --site $site_name install-app payments
+    bench --site $site_name install-app dokos
+    bench --site $site_name install-app hrms
+popd
+
+ynh_script_progression --message="Restarting bench to apply all changes and optimizing environment pernissions.${NC}"
 
 #Now to make sure the environment is fully setup
 sudo chmod 755 /home/$(echo $user)
