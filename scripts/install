@@ -105,7 +105,7 @@ pushd $install_dir
 
     ynh_script_progression --message="Installing Dodock (frappe)..." --weight=30
 
-    ynh_exec_warn_less ynh_exec_as $app $install_dir/bin/bench init $install_dir/dokos-bench-folder --version v4 --verbose
+    ynh_exec_as $app $install_dir/bin/bench init $install_dir/dokos-bench-folder --version v4 --verbose
 
     ynh_script_progression --message="Installing $app..." --weight=30
 
