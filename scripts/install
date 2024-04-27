@@ -67,14 +67,6 @@ test -e $install_dir/bin/python3 || python3 -m venv $install_dir
 pip3=$install_dir/bin/pip3
 
 #=================================================
-# SETUP LOGROTATE
-#=================================================
-ynh_script_progression --message="Configuring log rotation..." --weight=1
-
-# Use logrotate to manage application logfile(s)
-ynh_use_logrotate --logfile="/var/log/$app/${app}.log"
-
-#=================================================
 # Update MYSQL database to utf8
 #=================================================
 ynh_script_progression --message="Updating the MySQL database with utf8..." --weight=2
@@ -110,25 +102,26 @@ pushd $install_dir
     ynh_use_nodejs
 
     $pip3 install --upgrade dokos-cli
+    bench=$install_dir/bin/bench
 
     ynh_script_progression --message="Installing Dodock (frappe)..." --weight=30
 
     mkdir $install_dir/dokos-bench-folder
-    bench init $install_dir/dokos-bench-folder --version v4
+    $bench init $install_dir/dokos-bench-folder --version v4
 
     ynh_script_progression --message="Installing $app..." --weight=30
 
     cd $install_dir/dokos-bench-folder
-    bench get-app --branch v4 dokos
+    $bench get-app --branch v4 dokos
 
     ynh_script_progression --message="Installing $app applications..." --weight=30
 
-    bench get-app --branch v4 payments
-    bench get-app --branch v4 hrms
+    $bench get-app --branch v4 payments
+    $bench get-app --branch v4 hrms
 
     ynh_script_progression --message="Installing $app new site..." --weight=30
 
-    bench new-site $site_name --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $admin_pwd
+    $bench new-site $site_name --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $admin_pwd
 popd
 
 chmod -R o-r "$install_dir"
@@ -166,14 +159,14 @@ sudo service nginx reload
 # Enable and resume the scheduler for the site
 pushd $install_dir/dokos-bench-folder
     ynh_use_nodejs
-    bench --site $site_name scheduler enable && \
-    bench --site $site_name scheduler resume && \
+    $bench --site $site_name scheduler enable && \
+    $bench --site $site_name scheduler resume && \
 
     ynh_script_progression --message="Adding apps Payments, Dokos and Hrms to your website.${NC}"
 
-    bench --site $site_name install-app payments
-    bench --site $site_name install-app dokos
-    bench --site $site_name install-app hrms
+    $bench --site $site_name install-app payments
+    $bench --site $site_name install-app dokos
+    $bench --site $site_name install-app hrms
 popd
 
 ynh_script_progression --message="Restarting bench to apply all changes and optimizing environment pernissions.${NC}"
@@ -184,8 +177,6 @@ chown -R $app:www-data "$install_dir"
 
 ### `yunohost service add` integrates a service in YunoHost. It then gets
 ### displayed in the admin interface and through the others `yunohost service` commands.
-
-yunohost service add $app --log="/var/log/$app/$app.log"
 
 ### Additional options starting with 3.8:
 ###
@@ -203,8 +194,16 @@ yunohost service add $app --log="/var/log/$app/$app.log"
 ### weren't enabled on old installs (be careful it'll override the existing
 ### service though so you should re-provide all relevant flags when doing so)
 
+#=================================================
+# SETUP LOGROTATE
+#=================================================
+ynh_script_progression --message="Configuring log rotation..." --weight=1
+
 # Use logrotate to manage application logfile(s)
-ynh_use_logrotate
+yunohost service add $app --log="/var/log/$app/$app.log"
+
+ynh_use_logrotate --logfile="/var/log/$app/${app}.log"
+
 
 #=================================================
 # APP INITIAL CONFIGURATION
