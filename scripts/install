@@ -50,14 +50,42 @@ ynh_script_progression --message="Installing NodeJS..." --weight=10
 # Install Nodejs
 ynh_exec_warn_less ynh_install_nodejs --nodejs_version=$nodejs_version
 
+# Upgrade NPM
+ynh_npm install --global npm@latest
+
+# Install Yarn
+ynh_npm install --global yarn
+
 # Install yarn
-ynh_script_progression --message="Installing app..." --weight=5
+ynh_script_progression --message="Installing yarn..." --weight=5
+
+#pushd $install_dir
+#ynh_use_nodejs
+#ynh_exec_as $app $ynh_node_load_PATH yarn install --production --pure-lockfile
+#popd
+
+chmod 750 "$install_dir"
+chmod -R o-rwx "$install_dir"
+chown -R $app:www-data "$install_dir"
 
 pushd $install_dir
-ynh_use_nodejs
-ynh_exec_as $app $ynh_node_load_PATH yarn install --production --pure-lockfile
-ynh_exec_as $app $ynh_node_load_PATH yarn build
+    ynh_use_nodejs
+
+	ynh_script_progression --message="Fetching Yarn dev dependencies... This can be very long, be patient !" --weight=18
+	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn install --network-timeout=100000
+
+	ynh_script_progression --message="Building Yarn dev dependencies... This can be very long, be patient !" --weight=25
+	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn run build
+	
+	ynh_script_progression --message="Cleaning cache... " --weight=3
+	ynh_exec_warn_less sudo -u $app env $ynh_node_load_PATH yarn cache clean 2>&1
+
 popd
+
+chmod 750 "$install_dir"
+chmod -R o-rwx "$install_dir"
+chown -R $app:$app "$install_dir"
+
 
 #=================================================
 # SETUP LOGROTATE
@@ -98,7 +126,7 @@ ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
 #=================================================
 # INSTALL Dokos
 #=================================================
-ynh_script_progression --message="Installing $app..." --weight=30
+ynh_script_progression --message="Installing $app CLI..." --weight=30
 
 python3 -m venv $user && \
 source $user/bin/activate
@@ -108,9 +136,16 @@ bench init $install_dir --version v4
 
 cd $install_dir && \
 
-bench get-app --branch v4 payments
+ynh_script_progression --message="Installing $app..." --weight=30
+
 bench get-app --branch v4 dokos
+
+ynh_script_progression --message="Installing $app applications..." --weight=30
+
+bench get-app --branch v4 payments
 bench get-app --branch v4 hrms
+
+ynh_script_progression --message="Installing $app new site..." --weight=30
 
 
 bench new-site $site_name --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $admin_pwd
