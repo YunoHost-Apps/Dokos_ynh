@@ -89,10 +89,10 @@ ram.runtime = "50M"
     [resources.install_dir]
     # This will create/remove the install dir as /var/www/$app
     # and store the corresponding setting $install_dir
-    dir = "/var/www/__APP__"
-    owner = "__APP__:rwX"
-    group = "__APP__:rwX"
-    other = "__APP__:rwX"
+#    dir = "/var/www/__APP__"
+#    owner = "__APP__:rwX"
+#    group = "__APP__:rwX"
+#    other = "__APP__:rwX"
 
     [resources.data_dir]
     # This will create/remove the data dir as /home/yunohost.app/$app
