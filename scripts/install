@@ -106,10 +106,10 @@ ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
 #=================================================
 ynh_script_progression --message="Installing $app CLI..." --weight=30
 
-$pip3 install --upgrade dokos-cli
-
 pushd $install_dir/dokos-bench-folder/
     ynh_use_nodejs
+
+    $pip3 install --upgrade dokos-cli
 
     ynh_script_progression --message="Installing Dodock (frappe)..." --weight=30
 
