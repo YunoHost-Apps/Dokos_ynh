@@ -40,6 +40,7 @@ source /usr/share/yunohost/helpers
 admin_pwd=$YNH_APP_ARG_PASSWORD
 site_name=$domain
 #python_version="$(python3 -V | cut -d' ' -f2 | cut -d. -f1-2)"
+adduser $app sudo
 
 
 #=================================================
@@ -96,8 +97,6 @@ ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
 # INSTALL Dokos
 #=================================================
 ynh_script_progression --message="Installing $app CLI..." --weight=30
-
-adduser $app sudo
 
 pushd $install_dir
     ynh_use_nodejs
