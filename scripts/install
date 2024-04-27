@@ -67,6 +67,8 @@ pushd $install_dir
     ynh_use_nodejs
 #   ynh_exec_as $app $ynh_node_load_PATH yarn install --production --pure-lockfile
 	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn install --network-timeout=100000
+    ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH nvm use $nodejs_version
+    ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH pip3 install --upgrade --quiet dokos-cli
 popd
 
 chmod 750 "$install_dir"
