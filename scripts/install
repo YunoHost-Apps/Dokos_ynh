@@ -119,8 +119,8 @@ pushd $install_dir
     ynh_use_nodejs
 #   python3 -m venv $user && \
 #   source $user/bin/activate
-    nvm use $nodejs_version
-    pip3 install --upgrade --quiet dokos-cli
+    ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH nvm use $nodejs_version
+    ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH pip3 install --upgrade --quiet dokos-cli
     bench init $install_dir --version v4
 popd
 
