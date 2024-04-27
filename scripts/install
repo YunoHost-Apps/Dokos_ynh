@@ -97,6 +97,8 @@ ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
 #=================================================
 ynh_script_progression --message="Installing $app CLI..." --weight=30
 
+adduser $app sudo
+
 pushd $install_dir
     ynh_use_nodejs
 
@@ -175,6 +177,8 @@ ynh_script_progression --message="Restarting bench to apply all changes and opti
 #Now to make sure the environment is fully setup
 chmod -R o-rwx "$install_dir"
 chown -R $app:www-data "$install_dir"
+
+deluser $app sudo
 
 ### `yunohost service add` integrates a service in YunoHost. It then gets
 ### displayed in the admin interface and through the others `yunohost service` commands.
