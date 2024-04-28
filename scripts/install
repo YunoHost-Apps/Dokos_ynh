@@ -59,7 +59,7 @@ ynh_npm install --global yarn
 pushd $install_dir
     ynh_use_nodejs
     ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn install --network-timeout=100000
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench pip3
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH
 popd
 
 # Install virtualenv if it don't exist
@@ -103,17 +103,17 @@ pushd $install_dir
     ynh_use_nodejs
 #    ynh_exec_as $app export PATH=$install_dir/bin:$PATH
 
-    ynh_exec_as $app pip3 install --upgrade dokos-cli
+    ynh_exec_as $app env pip3 install --upgrade dokos-cli
 
     ynh_script_progression --message="Installing Dodock (frappe), it can take quiet some time..." --weight=30
 
-    ynh_exec_as $app bench init $install_dir/dokos-bench-folder --version v4
+    ynh_exec_as $app env bench init $install_dir/dokos-bench-folder --version v4
 #    ynh_exec_as $app bench init $install_dir/dokos-bench-folder --version v4 --verbose
 
     ynh_script_progression --message="Installing $app..." --weight=30
 
     cd $install_dir/dokos-bench-folder
-    ynh_exec_as $app bench get-app --branch v4 dokos
+    ynh_exec_as $app env bench get-app --branch v4 dokos
 
     ynh_script_progression --message="Installing $app applications payments..." --weight=30
 
