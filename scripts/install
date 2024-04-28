@@ -96,6 +96,8 @@ ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
 #=================================================
 ynh_script_progression --message="Installing $app CLI..." --weight=30
 
+chown $app:root -R $install_dir
+
 pushd $install_dir
     ynh_use_nodejs
 
