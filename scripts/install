@@ -101,7 +101,7 @@ chown $app:root -R $install_dir
 pushd $install_dir
     ynh_use_nodejs
 
-    ynh_exec_as $app $install_dir/bin/pip3 install -n --upgrade dokos-cli
+    ynh_exec_as $app $install_dir/bin/pip3 install --upgrade dokos-cli
 #    bench=$(ynh_exec_as $app $install_dir/bin/bench)
 
     ynh_script_progression --message="Installing Dodock (frappe), it can take quiet some time..." --weight=30
