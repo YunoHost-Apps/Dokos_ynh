@@ -100,7 +100,7 @@ ynh_script_progression --message="Installing $app CLI..." --weight=30
 pushd $install_dir
     ynh_use_nodejs
 
-    ynh_exec_as $app $install_dir/bin/activate
+    ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH $install_dir/bin/activate
 
     ynh_exec_as $app pip3 install --upgrade dokos-cli
 #    bench=$(ynh_exec_as $app $install_dir/bin/bench)
