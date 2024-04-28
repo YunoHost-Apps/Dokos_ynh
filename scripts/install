@@ -65,6 +65,9 @@ popd
 # Install virtualenv if it don't exist
 test -e python3 || python3 -m venv $install_dir
 
+ynh_exec_as $app export PATH=$install_dir/bin:$PATH
+
+
 #=================================================
 # Update MYSQL database to utf8
 #=================================================
@@ -101,7 +104,6 @@ chown $app:root -R $install_dir
 
 pushd $install_dir
     ynh_use_nodejs
-    ynh_exec_as $app export PATH=$install_dir/bin:$PATH
 
     ynh_exec_as $app pip3 install --upgrade dokos-cli
 
