@@ -59,7 +59,6 @@ ynh_npm install --global yarn
 pushd $install_dir
     ynh_use_nodejs
     ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn install --network-timeout=100000
-#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH
 popd
 
 # Install virtualenv if it don't exist
@@ -101,34 +100,32 @@ chown $app:root -R $install_dir
 
 pushd $install_dir
     ynh_use_nodejs
-#    ynh_exec_as $app export PATH=$install_dir/bin:$PATH
-#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH pip3
 
     ynh_exec_as $app $install_dir/bin/pip3 install --upgrade dokos-cli
 
     ynh_script_progression --message="Installing Dodock (frappe), it can take quiet some time..." --weight=30
 
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench init $install_dir/dokos-bench-folder --version v4
 
-    ynh_exec_as $app bench init $install_dir/dokos-bench-folder --version v4
+#    ynh_exec_as $app bench init $install_dir/dokos-bench-folder --version v4
 #    ynh_exec_as $app bench init $install_dir/dokos-bench-folder --version v4 --verbose
 
     ynh_script_progression --message="Installing $app..." --weight=30
 
     cd $install_dir/dokos-bench-folder
-    ynh_exec_as $app bench get-app --branch v4 dokos
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench get-app --branch v4 dokos
 
     ynh_script_progression --message="Installing $app applications payments..." --weight=30
 
-    ynh_exec_as $app bench get-app --branch v4 payments
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench get-app --branch v4 payments
 
     ynh_script_progression --message="Installing $app applications hrms..." --weight=30
 
-    ynh_exec_as $app bench get-app --branch v4 hrms
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench get-app --branch v4 hrms
 
     ynh_script_progression --message="Installing $app new site..." --weight=30
 
-    ynh_exec_as $app bench new-site $site_name --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $admin_pwd
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench new-site $site_name --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $admin_pwd
 popd
 
 chmod -R o-r "$install_dir"
@@ -166,14 +163,14 @@ sudo service nginx reload
 # Enable and resume the scheduler for the site
 pushd $install_dir/dokos-bench-folder
     ynh_use_nodejs
-    ynh_exec_as $app bench --site $site_name scheduler enable && \
-    ynh_exec_as $app bench --site $site_name scheduler resume && \
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $site_name scheduler enable && \
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $site_name scheduler resume && \
 
     ynh_script_progression --message="Adding apps Payments, Dokos and Hrms to your website.${NC}"
 
-    ynh_exec_as $app bench --site $site_name install-app payments
-    ynh_exec_as $app bench --site $site_name install-app dokos
-    ynh_exec_as $app bench --site $site_name install-app hrms
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $site_name install-app payments
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $site_name install-app dokos
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $site_name install-app hrms
 popd
 
 ynh_script_progression --message="Restarting bench to apply all changes and optimizing environment pernissions.${NC}"
