@@ -59,7 +59,7 @@ ynh_npm install --global yarn
 pushd $install_dir
     ynh_use_nodejs
     ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn install --network-timeout=100000
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH
+#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH
 popd
 
 # Install virtualenv if it don't exist
@@ -101,7 +101,7 @@ chown $app:root -R $install_dir
 
 pushd $install_dir
     ynh_use_nodejs
-#    ynh_exec_as $app export PATH=$install_dir/bin:$PATH
+    ynh_exec_as $app export PATH=$install_dir/bin:$PATH
 
     ynh_exec_as $app pip3 install --upgrade dokos-cli
 
