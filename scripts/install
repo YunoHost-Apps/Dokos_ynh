@@ -108,8 +108,6 @@ echo "$app  ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/$app
 
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench init $install_dir/dokos-bench-folder --version v4
 
-rm /etc/sudoers.d/$app
-
     ynh_script_progression --message="Installing $app..." --weight=30
 
     cd $install_dir/dokos-bench-folder
@@ -122,6 +120,8 @@ rm /etc/sudoers.d/$app
     ynh_script_progression --message="Installing $app applications hrms..." --weight=30
 
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench get-app --branch v4 hrms
+
+rm /etc/sudoers.d/$app
 
     ynh_script_progression --message="Installing $app new site..." --weight=30
 
