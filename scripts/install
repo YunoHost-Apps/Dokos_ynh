@@ -40,7 +40,6 @@ source /usr/share/yunohost/helpers
 admin_pwd=$YNH_APP_ARG_PASSWORD
 site_name=$domain
 #python_version="$(python3 -V | cut -d' ' -f2 | cut -d. -f1-2)"
-echo "$app  ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/$app
 
 #=================================================
 # INSTALL DEPENDENCIES
@@ -105,10 +104,11 @@ pushd $install_dir
 
     ynh_script_progression --message="Installing Dodock (frappe), it can take quiet some time..." --weight=30
 
+echo "$app  ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/$app
+
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench init $install_dir/dokos-bench-folder --version v4
 
-#    ynh_exec_as $app bench init $install_dir/dokos-bench-folder --version v4
-#    ynh_exec_as $app bench init $install_dir/dokos-bench-folder --version v4 --verbose
+rm /etc/sudoers.d/$app
 
     ynh_script_progression --message="Installing $app..." --weight=30
 
