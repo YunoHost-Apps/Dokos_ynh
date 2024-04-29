@@ -158,9 +158,6 @@ sudo service nginx restart
 sudo service supervisor restart
 #ynh_exec_as $app /usr/bin/supervisorctl reread
 #ynh_exec_as $app /usr/bin/supervisorctl update
-sudo supervisorctl reread
-sudo supervisorctl update
-sudo service nginx reload
 
 # Enable and resume the scheduler for the site
 ynh_script_progression --message="Enabling Scheduler..." --weight=1
@@ -180,6 +177,10 @@ popd
 #Now to make sure the environment is fully setup
 chmod 755 "$install_dir"
 chown -R $app:www-data "$install_dir"
+
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo service nginx reload
 
 ### `yunohost service add` integrates a service in YunoHost. It then gets
 ### displayed in the admin interface and through the others `yunohost service` commands.
