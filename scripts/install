@@ -156,8 +156,10 @@ sudo sed -i '6i chown='"$app"':'"$app"'' /etc/supervisor/supervisord.conf && \
 # Restart nginx and supervisor
 sudo service nginx restart
 sudo service supervisor restart
-ynh_exec_as $app /usr/bin/supervisorctl reread
-ynh_exec_as $app /usr/bin/supervisorctl update
+#ynh_exec_as $app /usr/bin/supervisorctl reread
+#ynh_exec_as $app /usr/bin/supervisorctl update
+sudo supervisorctl reread
+sudo supervisorctl update
 sudo service nginx reload
 
 # Enable and resume the scheduler for the site
