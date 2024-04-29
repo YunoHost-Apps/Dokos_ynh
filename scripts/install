@@ -144,7 +144,7 @@ ynh_add_nginx_config
 ### `ynh_systemd_config` is used to configure a systemd script for an app, using the conf/systemd.service template
 
 # Create a dedicated systemd config
-ynh_add_systemd_config
+# ynh_add_systemd_config
 
 # Setup Supervisor
 ynh_script_progression --message="Configuring a supervisor service..." --weight=1
