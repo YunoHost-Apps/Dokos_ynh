@@ -179,8 +179,6 @@ popd
 chmod 755 "$install_dir"
 chown -R $app:www-data "$install_dir"
 
-rm /etc/sudoers.d/$app
-
 ### `yunohost service add` integrates a service in YunoHost. It then gets
 ### displayed in the admin interface and through the others `yunohost service` commands.
 
