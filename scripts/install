@@ -151,13 +151,11 @@ ynh_script_progression --message="Configuring a supervisor service..." --weight=
 ynh_add_config --template="supervisor.conf" --destination="/etc/supervisor/conf.d/$app.conf"
 
 # Change ownership of supervisord.conf
-sudo sed -i '6i chown='"$app"':'"$app"'' /etc/supervisor/supervisord.conf && \
+#sudo sed -i '6i chown='"$app"':'"$app"'' /etc/supervisor/supervisord.conf && \
 
 # Restart nginx and supervisor
 sudo service nginx restart
 sudo service supervisor restart
-#ynh_exec_as $app /usr/bin/supervisorctl reread
-#ynh_exec_as $app /usr/bin/supervisorctl update
 
 # Enable and resume the scheduler for the site
 ynh_script_progression --message="Enabling Scheduler..." --weight=1
