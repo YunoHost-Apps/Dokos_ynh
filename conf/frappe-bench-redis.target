@@ -1,0 +1,6 @@
+[Unit]
+After=network.target
+Wants=__APP__-redis-cache.service __APP__-redis-queue.service
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+[Unit]
+Description="__APP__-frappe-short-worker %I"
+PartOf=__APP__-workers.target
+
+[Service]
+User=__APP__
+Group=__APP__
+Restart=always
+ExecStart=__INSTALL_DIR__/bin/bench worker --queue short
+StandardOutput=file:__INSTALL_DIR__/dokos-bench-folder/logs/worker.log
+StandardError=file:__INSTALL_DIR__/dokos-bench-folder/logs/worker.error.log
+WorkingDirectory=__INSTALL_DIR__/dokos-bench-folder

@@ -132,30 +132,59 @@ chmod 755 "$install_dir"
 chown -R $app:www-data "$install_dir"
 
 #=================================================
+# NGINX CONFIGURATION
+#=================================================
+ynh_script_progression --message="Configuring NGINX web server..." --weight=1
+
+# Create a dedicated NGINX config
+ynh_add_nginx_config
+
+#=================================================
 # SYSTEM CONFIGURATION
 #=================================================
 ynh_script_progression --message="Adding system configurations related to $app..."
 
-# Create a dedicated NGINX config using the conf/nginx.conf template
-ynh_add_nginx_config
-
 ### `ynh_systemd_config` is used to configure a systemd script for an app, using the conf/systemd.service template
 
+ynh_add_config --template="../conf/frappe-bench-redis.target" --destination="/etc/systemd/system/$app-redis.target"
+ynh_add_config --template="../conf/frappe-bench-web.target" --destination="/etc/systemd/system/$app-web.target"
+ynh_add_config --template="../conf/frappe-bench-workers.target" --destination="/etc/systemd/system/$app-workers.target"
+ynh_add_config --template="../conf/frappe-bench.target" --destination="/etc/systemd/system/$app.target"
+
 # Create a dedicated systemd config
-# ynh_add_systemd_config
+ynh_add_systemd_config --service="$app-frappe-default-worker" --template="frappe-bench-frappe-default-worker.service"
+ynh_add_systemd_config --service="$app-frappe-long-worker" --template="frappe-bench-frappe-long-worker.service"
+ynh_add_systemd_config --service="$app-frappe-short-worker" --template="frappe-bench-frappe-short-worker.service"
+ynh_add_systemd_config --service="$app-frappe-schedule" --template="frappe-bench-frappe-schedule.service"
+ynh_add_systemd_config --service="$app-frappe-web" --template="frappe-bench-frappe-web.service"
+ynh_add_systemd_config --service="$app-node-socketio" --template="frappe-bench-node-socketio.service"
+ynh_add_systemd_config --service="$app-redis-cache" --template="frappe-bench-redis-cache.service"
+ynh_add_systemd_config --service="$app-redis-queue" --template="frappe-bench-redis-queue.service"
+
 
 # Setup Supervisor
-ynh_script_progression --message="Configuring a supervisor service..." --weight=1
+#ynh_script_progression --message="Configuring a supervisor service..." --weight=1
 
 # Add a dedicated supervisor config
-ynh_add_config --template="supervisor.conf" --destination="/etc/supervisor/conf.d/$app.conf"
+#ynh_add_config --template="supervisor.conf" --destination="/etc/supervisor/conf.d/$app.conf"
 
 # Change ownership of supervisord.conf
 #sudo sed -i '6i chown='"$app"':'"$app"'' /etc/supervisor/supervisord.conf && \
 
 # Restart nginx and supervisor
-sudo service nginx restart
-sudo service supervisor restart
+#sudo service nginx restart
+#sudo service supervisor restart
+
+#=================================================
+# RELOAD NGINX
+#=================================================
+ynh_script_progression --message="Reloading NGINX web server..." --weight=1
+
+ynh_systemd_action --service_name=nginx --action=reload
+
+#=================================================
+# SCHEDULER
+#=================================================
 
 # Enable and resume the scheduler for the site
 ynh_script_progression --message="Enabling Scheduler..." --weight=1
@@ -176,9 +205,46 @@ popd
 chmod 755 "$install_dir"
 chown -R $app:www-data "$install_dir"
 
-sudo supervisorctl reread
-sudo supervisorctl update
-sudo service nginx reload
+#sudo supervisorctl reread
+#sudo supervisorctl update
+#sudo service nginx reload
+
+#=================================================
+# GENERIC FINALIZATION
+#=================================================
+# INTEGRATE SERVICE IN YUNOHOST
+#=================================================
+ynh_script_progression --message="Integrating service in YunoHost..." --weight=1
+
+yunohost service add "$app-frappe-default-worker" --description="$app default worker service"
+yunohost service add "$app-frappe-long-worker" --description="$app long worker service"
+yunohost service add "$app-frappe-short-worker" --description="$app short worker service"
+yunohost service add "$app-frappe-schedule" --description="$app schedule service"
+yunohost service add "$app-frappe-web" --description="$app web service"
+yunohost service add "$app-node-socketio" --description="$app node socketio service"
+yunohost service add "$app-redis-cache" --description="$app redis cache service"
+yunohost service add "$app-redis-queue" --description="$app redis queue service"
+
+#=================================================
+# START SYSTEMD SERVICE
+#=================================================
+ynh_script_progression --message="Starting a systemd service..." --weight=1
+
+ynh_systemd_action --service_name=${app}-frappe-default-worker --action="start" --log_path=systemd --line_match="Default worker ready"
+ynh_systemd_action --service_name=${app}-frappe-long-worker --action="start" --log_path=systemd --line_match="Long worker ready"
+ynh_systemd_action --service_name=${app}-frappe-short-worker --action="start" --log_path=systemd --line_match="Short worker ready"
+ynh_systemd_action --service_name=${app}-frappe-schedule --action="start" --log_path=systemd --line_match="Schedules Loaded"
+ynh_systemd_action --service_name=${app}-frappe-web --action="start" --log_path=systemd --line_match="Server listening on"
+ynh_systemd_action --service_name=${app}-node-socketio --action="start" --log_path=systemd --line_match="Node socketio ready"
+ynh_systemd_action --service_name=${app}-redis-cache --action="start" --log_path=systemd --line_match="Redis cache ready"
+ynh_systemd_action --service_name=${app}-redis-queue --action="start" --log_path=systemd --line_match="Redis queue ready"
+
+#=================================================
+# RELOAD NGINX
+#=================================================
+ynh_script_progression --message="Reloading NGINX web server..." --weight=1
+
+ynh_systemd_action --service_name=nginx --action=reload
 
 ### `yunohost service add` integrates a service in YunoHost. It then gets
 ### displayed in the admin interface and through the others `yunohost service` commands.
