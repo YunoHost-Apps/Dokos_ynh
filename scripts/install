@@ -157,10 +157,9 @@ ynh_add_systemd_config --service="$app-frappe-long-worker" --template="frappe-be
 ynh_add_systemd_config --service="$app-frappe-short-worker" --template="frappe-bench-frappe-short-worker.service"
 ynh_add_systemd_config --service="$app-frappe-schedule" --template="frappe-bench-frappe-schedule.service"
 ynh_add_systemd_config --service="$app-frappe-web" --template="frappe-bench-frappe-web.service"
-ynh_add_systemd_config --service="$app-node-socketio" --template="frappe-bench-node-socketio.service"
 ynh_add_systemd_config --service="$app-redis-cache" --template="frappe-bench-redis-cache.service"
 ynh_add_systemd_config --service="$app-redis-queue" --template="frappe-bench-redis-queue.service"
-
+ynh_add_systemd_config --service="$app-node-socketio" --template="frappe-bench-node-socketio.service"
 
 # Setup Supervisor
 #ynh_script_progression --message="Configuring a supervisor service..." --weight=1
@@ -187,9 +186,10 @@ yunohost service add "$app-frappe-long-worker" --description="$app long worker s
 yunohost service add "$app-frappe-short-worker" --description="$app short worker service"
 yunohost service add "$app-frappe-schedule" --description="$app schedule service"
 yunohost service add "$app-frappe-web" --description="$app web service"
-yunohost service add "$app-node-socketio" --description="$app node socketio service"
 yunohost service add "$app-redis-cache" --description="$app redis cache service"
 yunohost service add "$app-redis-queue" --description="$app redis queue service"
+yunohost service add "$app-node-socketio" --description="$app node socketio service"
+
 
 #=================================================
 # START SYSTEMD SERVICE
@@ -201,9 +201,10 @@ ynh_systemd_action --service_name=${app}-frappe-long-worker --action="start" --l
 ynh_systemd_action --service_name=${app}-frappe-short-worker --action="start" --log_path=systemd --line_match="Short worker ready"
 ynh_systemd_action --service_name=${app}-frappe-schedule --action="start" --log_path=systemd --line_match="Schedules Loaded"
 ynh_systemd_action --service_name=${app}-frappe-web --action="start" --log_path=systemd --line_match="Server listening on"
-ynh_systemd_action --service_name=${app}-node-socketio --action="start" --log_path=systemd --line_match="Node socketio ready"
 ynh_systemd_action --service_name=${app}-redis-cache --action="start" --log_path=systemd --line_match="Redis cache ready"
 ynh_systemd_action --service_name=${app}-redis-queue --action="start" --log_path=systemd --line_match="Redis queue ready"
+ynh_systemd_action --service_name=${app}-node-socketio --action="start" --log_path=systemd --line_match="Node socketio ready"
+
 
 #=================================================
 # RELOAD NGINX
