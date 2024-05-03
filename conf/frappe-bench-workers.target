@@ -1,4 +1,5 @@
 [Unit]
+Description=Dokos (__APP__) workers
 After=network.target
 Wants=__APP__-frappe-default-worker.service __APP__-frappe-long-worker.service __APP__-frappe-short-worker.service
 
