@@ -97,23 +97,23 @@ ynh_script_progression --message="Installing $app CLI..." --weight=30
 
 chown $app:root -R $install_dir
 
-pushd $install_dir
-    ynh_use_nodejs
+ynh_exec_as $app $install_dir/bin/python -m pip install --upgrade dokos-cli
 
-    ynh_exec_as $app $install_dir/bin/python -m pip install --upgrade dokos-cli
-
-    ynh_script_progression --message="Installing Dodock (frappe), it can take quiet some time..." --weight=30
+ynh_script_progression --message="Installing Dodock (frappe), it can take quiet some time..." --weight=30
 
 echo "$app  ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/$app
 
+pushd $install_dir
+    ynh_use_nodejs
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench init $install_dir/dokos-bench-folder --version v4
 
 rm /etc/sudoers.d/$app
+
 popd
 
-ynh_script_progression --message="Installing $app..." --weight=30
-
 apps_dir=$install_dir/dokos-bench-folder/apps
+
+ynh_script_progression --message="Installing $app..." --weight=30
 
 #    cd $install_dir/dokos-bench-folder
 #    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench get-app --branch v4 dokos
@@ -126,7 +126,6 @@ pushd $apps_dir/erpnext
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app erpnext
 popd
 #node esbuild --production --apps erpnext --run-build-command
-
 
 ynh_script_progression --message="Installing $app applications payments..." --weight=30
 
@@ -164,8 +163,9 @@ cp $apps_dir/hrms/hrms/public/frontend/index.html $apps_dir/hrms/hrms/www/hrms.h
 #exit 1
 #rm /etc/sudoers.d/$app
 
-    ynh_script_progression --message="Installing $app new site..." --weight=30
+ynh_script_progression --message="Installing $app new site..." --weight=30
 
+pushd $install_dir
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench new-site $site_name --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $admin_pwd
 popd
 
