@@ -84,8 +84,8 @@ ram.runtime = "50M"
         autoupdate.strategy = "latest_gitlab_release"
 
         [resources.sources.dokos]
-        url = "https://gitlab.com/dokos/dokos/-/archive/v4.16.1/dokos-v4.16.1.tar.gz"
-        sha256 = "965b4d105e0e7f845da8e16d8038a928e65620931d457133e43c510bf2378db5"
+        url = "https://gitlab.com/dokos/dokos/-/archive/v4.16.2/dokos-v4.16.2.tar.gz"
+        sha256 = "16fd66a376f99757660ff29eb66add2a71e74c64d97e3e20bba4ee7cd340efc3"
         prefetch = true
         autoupdate.strategy = "latest_gitlab_release"
 
