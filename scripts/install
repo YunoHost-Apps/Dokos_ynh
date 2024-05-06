@@ -122,7 +122,7 @@ echo "$app  ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/$app
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench get-app --branch v4 hrms
 
 rm /etc/sudoers.d/$app
-exit 1
+
     ynh_script_progression --message="Installing $app new site..." --weight=30
 
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench new-site $site_name --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $admin_pwd
