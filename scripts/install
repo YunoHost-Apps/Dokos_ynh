@@ -113,11 +113,14 @@ popd
 
 ynh_script_progression --message="Installing $app..." --weight=30
 
+apps_dir=$install_dir/dokos-bench-folder/apps
+
 #    cd $install_dir/dokos-bench-folder
 #    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench get-app --branch v4 dokos
-ynh_setup_source --dest_dir="$install_dir/dokos-bench-folder/apps/erpnext" --source_id="dokos"
-ynh_exec_as $app $install_dir/bin/python -m pip install --upgrade -e $install_dir/dokos-bench-folder/apps/erpnext
-pushd $install_dir/dokos-bench-folder/apps/erpnext
+ynh_setup_source --dest_dir="$apps_dir/erpnext" --source_id="dokos"
+ynh_exec_as $app $install_dir/bin/python -m pip install --upgrade -e $apps_dir/erpnext
+chown -R $app:www-data "$apps_dir/erpnext"
+pushd $apps_dir/erpnext
     ynh_use_nodejs
     ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
 popd
@@ -127,27 +130,29 @@ node esbuild --production --apps erpnext --run-build-command
 ynh_script_progression --message="Installing $app applications payments..." --weight=30
 
 #    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench get-app --branch v4 payments
-ynh_setup_source --dest_dir="$install_dir/dokos-bench-folder/apps/payments" --source_id="payments"
-ynh_exec_as $app $install_dir/bin/python -m pip install --upgrade -e $install_dir/dokos-bench-folder/apps/payments
+ynh_setup_source --dest_dir="$apps_dir/payments" --source_id="payments"
+ynh_exec_as $app $install_dir/bin/python -m pip install --upgrade -e $apps_dir/payments
+chown -R $app:www-data "$apps_dir/payments"
 ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app payments
 node esbuild --production --apps payments --run-build-command
 
 ynh_script_progression --message="Installing $app applications hrms..." --weight=30
 
 #    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench get-app --branch v4 hrms
-ynh_setup_source --dest_dir="$install_dir/dokos-bench-folder/apps/hrms" --source_id="hrms"
-ynh_exec_as $app $install_dir/bin/python -m pip install --upgrade -e $install_dir/dokos-bench-folder/apps/hrms 
-pushd $install_dir/dokos-bench-folder/apps/hrms
+ynh_setup_source --dest_dir="$apps_dir/hrms" --source_id="hrms"
+ynh_exec_as $app $install_dir/bin/python -m pip install --upgrade -e $apps_dir/hrms
+chown -R $app:www-data "$apps_dir/hrms"
+pushd $apps_dir/hrms
     ynh_use_nodejs
     ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
 popd
-pushd $install_dir/dokos-bench-folder/apps/hrms/frontend
+pushd $apps_dir/hrms/frontend
     ynh_use_nodejs
     ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
 popd
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app hrms
     node esbuild --production --apps hrms --run-build-command
-pushd $install_dir/dokos-bench-folder/apps/hrms/frontend
+pushd $apps_dir/hrms/frontend
     ynh_use_nodejs
     ynh_exec_as $app env $ynh_node_load_PATH yarn build
 popd
