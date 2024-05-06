@@ -115,16 +115,32 @@ rm /etc/sudoers.d/$app
 #    cd $install_dir/dokos-bench-folder
 #    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench get-app --branch v4 dokos
     ynh_setup_source --dest_dir="$install_dir/dokos-bench-folder" --source_id="dokos"
+    ynh_exec_as $app $install_dir/bin/pip3 install --upgrade -e $install_dir/dokos-bench-folder/apps/erpnext
+#    yarn install --check-files
+#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app erpnext
+#    node esbuild --production --apps erpnext --run-build-command
 
     ynh_script_progression --message="Installing $app applications payments..." --weight=30
 
 #    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench get-app --branch v4 payments
     ynh_setup_source --dest_dir="$install_dir/dokos-bench-folder" --source_id="payments"
+    ynh_exec_as $app $install_dir/bin/pip3 install --upgrade -e $install_dir/dokos-bench-folder/apps/payments
+#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app payments
+#    node esbuild --production --apps payments --run-build-command
 
     ynh_script_progression --message="Installing $app applications hrms..." --weight=30
 
 #    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench get-app --branch v4 hrms
     ynh_setup_source --dest_dir="$install_dir/dokos-bench-folder" --source_id="hrms"
+    ynh_exec_as $app $install_dir/bin/pip3 install --upgrade -e $install_dir/dokos-bench-folder/apps/hrms 
+#    yarn install --check-files
+#    cd frontend && yarn install --check-files
+#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app hrms
+#    node esbuild --production --apps hrms --run-build-command
+#    cd frontend && yarn build
+#    vite build --base=/assets/hrms/frontend/ && yarn copy-html-entry
+#    cp ../hrms/public/frontend/index.html ../hrms/www/hrms.html
+
 exit 1
 #rm /etc/sudoers.d/$app
 

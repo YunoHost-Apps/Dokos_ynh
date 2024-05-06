@@ -92,13 +92,13 @@ ram.runtime = "50M"
         [resources.sources.payments]
         url = "https://gitlab.com/dokos/payments/-/archive/v2.3.0/payments-v2.3.0.tar.gz"
         sha256 = "5eaad118939ae1e6b94194e603c7d42d017cb0d9587a668d7b31c91078d1abd9"
-        prefetch = false
+        prefetch = true
         autoupdate.strategy = "latest_gitlab_release"
 
         [resources.sources.hrms]
         url = "https://gitlab.com/dokos/hrms/-/archive/v2.17.1/hrms-v2.17.1.tar.gz"
         sha256 = "ea412e30f37ac160c1b9a8ce268f09d1e585a8983436ed2dc1ffc2fe4f506ae2"
-        prefetch = false
+        prefetch = true
         autoupdate.strategy = "latest_gitlab_release"
 
 
