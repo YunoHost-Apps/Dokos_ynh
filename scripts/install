@@ -161,7 +161,7 @@ pushd $apps_dir/hrms/frontend
 popd
 cp $apps_dir/hrms/hrms/public/frontend/index.html $apps_dir/hrms/hrms/www/hrms.html
 
-exit 1
+#exit 1
 #rm /etc/sudoers.d/$app
 
     ynh_script_progression --message="Installing $app new site..." --weight=30
