@@ -133,7 +133,8 @@ ynh_script_progression --message="Installing $app applications payments..." --we
 ynh_setup_source --dest_dir="$apps_dir/payments" --source_id="payments"
 ynh_exec_as $app $install_dir/bin/python -m pip install --upgrade -e $apps_dir/payments
 chown -R $app:www-data "$apps_dir/payments"
-pushd $apps_dir/erpnext
+pushd $apps_dir/payments
+    ynh_use_nodejs
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app payments
 popd
 #node esbuild --production --apps payments --run-build-command
