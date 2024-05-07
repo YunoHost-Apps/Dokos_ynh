@@ -77,22 +77,6 @@ ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 
-# ynh_script_progression --message="Setting up source files..."
-
-### `ynh_setup_source` is used to install an app from a zip or tar.gz file,
-### downloaded from an upstream source, as defined in the manifest.toml
-
-# ynh_setup_source --dest_dir="$install_dir"
-
-# $install_dir will automatically be initialized with some decent
-# permission by default ... however, you may need to recursively reapply
-# ownership to all files such as after the ynh_setup_source step
-
-# chown -R $app:www-data "$install_dir"
-
-#=================================================
-# INSTALL Dokos
-#=================================================
 ynh_script_progression --message="Installing $app CLI..." --weight=30
 
 chown $app:root -R $install_dir
@@ -111,57 +95,17 @@ rm /etc/sudoers.d/$app
 
 popd
 
-#apps_dir=$install_dir/dokos-bench-folder/apps
-
 ynh_script_progression --message="Installing $app..." --weight=30
 
 install_app_to_bench erpnext
-#ynh_setup_source --dest_dir="$apps_dir/erpnext" --source_id="erpnext"
-#chmod u+x $install_dir/dokos-bench-folder/env/bin/activate
-#ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/activate
-#ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/python -m pip install --upgrade -e $apps_dir/erpnext
-#chown -R $app:www-data "$apps_dir/erpnext"
-#ynh_exec_as $app echo -e "\nerpnext" >> $install_dir/dokos-bench-folder/sites/apps.txt
-#pushd $apps_dir/erpnext
-#    ynh_use_nodejs
-#    ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
-#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app erpnext
-#popd
 
 ynh_script_progression --message="Installing $app applications payments..." --weight=30
 
 install_app_to_bench payments
-#ynh_setup_source --dest_dir="$apps_dir/payments" --source_id="payments"
-#ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/activate
-#ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/python -m pip install --upgrade -e $apps_dir/payments
-#chown -R $app:www-data "$apps_dir/payments"
-#ynh_exec_as $app echo -e "\npayments" >> $install_dir/dokos-bench-folder/sites/apps.txt
-#pushd $apps_dir/payments
-#    ynh_use_nodejs
-#    ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
-#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app payments
-#popd
 
 ynh_script_progression --message="Installing $app applications hrms..." --weight=30
 
 install_app_to_bench hrms
-#ynh_setup_source --dest_dir="$apps_dir/hrms" --source_id="hrms"
-#ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/activate
-#ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/python -m pip install --upgrade -e $apps_dir/hrms
-#chown -R $app:www-data "$apps_dir/hrms"
-#ynh_exec_as $app echo -e "\nhrms" >> $install_dir/dokos-bench-folder/sites/apps.txt
-#pushd $apps_dir/hrms
-#    ynh_use_nodejs
-#    ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
-#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app hrms
-#popd
-#pushd $apps_dir/hrms/frontend
-#    ynh_use_nodejs
-#    ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
-#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app hrms
-#    ynh_exec_as $app env $ynh_node_load_PATH yarn build
-#    vite build --base=/assets/hrms/frontend/ && ynh_exec_as $app env $ynh_node_load_PATH yarn copy-html-entry
-#popd
 
 ynh_script_progression --message="Installing $app new site..." --weight=30
 
@@ -201,19 +145,6 @@ ynh_add_systemd_config --service="$app-frappe-web" --template="frappe-bench-frap
 ynh_add_systemd_config --service="$app-redis-cache" --template="frappe-bench-redis-cache.service"
 ynh_add_systemd_config --service="$app-redis-queue" --template="frappe-bench-redis-queue.service"
 ynh_add_systemd_config --service="$app-node-socketio" --template="frappe-bench-node-socketio.service"
-
-# Setup Supervisor
-#ynh_script_progression --message="Configuring a supervisor service..." --weight=1
-
-# Add a dedicated supervisor config
-#ynh_add_config --template="supervisor.conf" --destination="/etc/supervisor/conf.d/$app.conf"
-
-# Change ownership of supervisord.conf
-#sudo sed -i '6i chown='"$app"':'"$app"'' /etc/supervisor/supervisord.conf && \
-
-# Restart nginx and supervisor
-#sudo service nginx restart
-#sudo service supervisor restart
 
 #=================================================
 # GENERIC FINALIZATION
@@ -277,35 +208,12 @@ popd
 chmod 755 "$install_dir"
 chown -R $app:www-data "$install_dir"
 
-#sudo supervisorctl reread
-#sudo supervisorctl update
-#sudo service nginx reload
-
 #=================================================
 # RELOAD NGINX
 #=================================================
 ynh_script_progression --message="Reloading NGINX web server..." --weight=1
 
 ynh_systemd_action --service_name=nginx --action=reload
-
-### `yunohost service add` integrates a service in YunoHost. It then gets
-### displayed in the admin interface and through the others `yunohost service` commands.
-
-### Additional options starting with 3.8:
-###
-### --needs_exposed_ports "$port" a list of ports that needs to be publicly exposed
-###                               which will then be checked by YunoHost's diagnosis system
-###                               (N.B. DO NOT USE THIS is the port is only internal!!!)
-###
-### --test_status "some command"  a custom command to check the status of the service
-###                               (only relevant if 'systemctl status' doesn't do a good job)
-###
-### --test_conf "some command"    some command similar to "nginx -t" that validates the conf of the service
-###
-### Re-calling 'yunohost service add' during the upgrade script is the right way
-### to proceed if you later realize that you need to enable some flags that
-### weren't enabled on old installs (be careful it'll override the existing
-### service though so you should re-provide all relevant flags when doing so)
 
 #=================================================
 # SETUP LOGROTATE

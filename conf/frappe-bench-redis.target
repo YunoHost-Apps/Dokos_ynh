@@ -1,5 +1,5 @@
 [Unit]
-Description=Dokos (__APP__) redis
+Description="Dokos (__APP__) redis"
 After=network.target
 Wants=__APP__-redis-cache.service __APP__-redis-queue.service
 
