@@ -83,7 +83,7 @@ ram.runtime = "50M"
 
         autoupdate.strategy = "latest_gitlab_release"
 
-        [resources.sources.dokos]
+        [resources.sources.erpnext]
         url = "https://gitlab.com/dokos/dokos/-/archive/v4.16.2/dokos-v4.16.2.tar.gz"
         sha256 = "16fd66a376f99757660ff29eb66add2a71e74c64d97e3e20bba4ee7cd340efc3"
         prefetch = true
