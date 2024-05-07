@@ -120,8 +120,7 @@ ynh_script_progression --message="Installing $app..." --weight=30
 ynh_setup_source --dest_dir="$apps_dir/erpnext" --source_id="dokos"
 ynh_exec_as $app $install_dir/bin/python -m pip install --upgrade -e $apps_dir/erpnext
 chown -R $app:www-data "$apps_dir/erpnext"
-#ynh_exec_as $app echo -e "\nerpnext" >> $install_dir/dokos-bench-folder/sites/apps.txt
-exit 1
+ynh_exec_as $app echo -e "\nerpnext" >> $install_dir/dokos-bench-folder/sites/apps.txt
 pushd $apps_dir/erpnext
     ynh_use_nodejs
     ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
