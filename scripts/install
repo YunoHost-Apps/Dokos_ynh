@@ -164,7 +164,7 @@ pushd $apps_dir/hrms/frontend
 #pushd $apps_dir/hrms/frontend
 #    ynh_use_nodejs
     ynh_exec_as $app env $ynh_node_load_PATH yarn build
-    vite build --base=/assets/hrms/frontend/ && yarn copy-html-entry
+    ynh_exec_as $app env $ynh_node_load_PATH vite build --base=/assets/hrms/frontend/ && ynh_exec_as $app env $ynh_node_load_PATH yarn copy-html-entry
 popd
 cp $apps_dir/hrms/hrms/public/frontend/index.html $apps_dir/hrms/hrms/www/hrms.html
 
