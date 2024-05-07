@@ -166,7 +166,7 @@ pushd $apps_dir/hrms/frontend
     ynh_exec_as $app env $ynh_node_load_PATH yarn build
     ynh_exec_as $app env $ynh_node_load_PATH vite build --base=/assets/hrms/frontend/ && ynh_exec_as $app env $ynh_node_load_PATH yarn copy-html-entry
 popd
-cp $apps_dir/hrms/hrms/public/frontend/index.html $apps_dir/hrms/hrms/www/hrms.html
+#cp $apps_dir/hrms/hrms/public/frontend/index.html $apps_dir/hrms/hrms/www/hrms.html
 
 #exit 1
 #rm /etc/sudoers.d/$app
