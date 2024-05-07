@@ -120,7 +120,7 @@ ynh_script_progression --message="Installing $app..." --weight=30
 ynh_setup_source --dest_dir="$apps_dir/erpnext" --source_id="dokos"
 ynh_exec_as $app $install_dir/bin/python -m pip install --upgrade -e $apps_dir/erpnext
 chown -R $app:www-data "$apps_dir/erpnext"
-ynh_exec_as $app echo "erpnext" >> $install_dir/dokos-bench-folder/sites/apps.txt
+ynh_exec_as $app echo "\nerpnext" >> $install_dir/dokos-bench-folder/sites/apps.txt
 pushd $apps_dir/erpnext
     ynh_use_nodejs
     ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
@@ -134,7 +134,7 @@ ynh_script_progression --message="Installing $app applications payments..." --we
 ynh_setup_source --dest_dir="$apps_dir/payments" --source_id="payments"
 ynh_exec_as $app $install_dir/bin/python -m pip install --upgrade -e $apps_dir/payments
 chown -R $app:www-data "$apps_dir/payments"
-ynh_exec_as $app echo "payments" >> $install_dir/dokos-bench-folder/sites/apps.txt
+ynh_exec_as $app echo "\npayments" >> $install_dir/dokos-bench-folder/sites/apps.txt
 pushd $apps_dir/payments
     ynh_use_nodejs
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app payments
@@ -147,7 +147,7 @@ ynh_script_progression --message="Installing $app applications hrms..." --weight
 ynh_setup_source --dest_dir="$apps_dir/hrms" --source_id="hrms"
 ynh_exec_as $app $install_dir/bin/python -m pip install --upgrade -e $apps_dir/hrms
 chown -R $app:www-data "$apps_dir/hrms"
-ynh_exec_as $app echo "hrms" >> $install_dir/dokos-bench-folder/sites/apps.txt
+ynh_exec_as $app echo "\nhrms" >> $install_dir/dokos-bench-folder/sites/apps.txt
 pushd $apps_dir/hrms
     ynh_use_nodejs
     ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
