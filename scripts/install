@@ -90,10 +90,9 @@ echo "$app  ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/$app
 pushd $install_dir
     ynh_use_nodejs
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench init $install_dir/dokos-bench-folder --version v4
+popd
 
 rm /etc/sudoers.d/$app
-
-popd
 
 ynh_script_progression --message="Installing $app..." --weight=30
 
