@@ -115,8 +115,6 @@ apps_dir=$install_dir/dokos-bench-folder/apps
 
 ynh_script_progression --message="Installing $app..." --weight=30
 
-#    cd $install_dir/dokos-bench-folder
-#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench get-app --branch v4 dokos
 ynh_setup_source --dest_dir="$apps_dir/erpnext" --source_id="dokos"
 chmod u+x $install_dir/dokos-bench-folder/env/bin/activate
 ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/activate
@@ -128,11 +126,9 @@ pushd $apps_dir/erpnext
     ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app erpnext
 popd
-#node esbuild --production --apps erpnext --run-build-command
 
 ynh_script_progression --message="Installing $app applications payments..." --weight=30
 
-#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench get-app --branch v4 payments
 ynh_setup_source --dest_dir="$apps_dir/payments" --source_id="payments"
 ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/activate
 ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/python -m pip install --upgrade -e $apps_dir/payments
@@ -140,13 +136,12 @@ chown -R $app:www-data "$apps_dir/payments"
 ynh_exec_as $app echo -e "\npayments" >> $install_dir/dokos-bench-folder/sites/apps.txt
 pushd $apps_dir/payments
     ynh_use_nodejs
+    ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app payments
 popd
-#node esbuild --production --apps payments --run-build-command
 
 ynh_script_progression --message="Installing $app applications hrms..." --weight=30
 
-#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench get-app --branch v4 hrms
 ynh_setup_source --dest_dir="$apps_dir/hrms" --source_id="hrms"
 ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/activate
 ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/python -m pip install --upgrade -e $apps_dir/hrms
@@ -155,21 +150,15 @@ ynh_exec_as $app echo -e "\nhrms" >> $install_dir/dokos-bench-folder/sites/apps.
 pushd $apps_dir/hrms
     ynh_use_nodejs
     ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
-popd
-pushd $apps_dir/hrms/frontend
-    ynh_use_nodejs
-    ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app hrms
-#    node esbuild --production --apps hrms --run-build-command
+popd
 #pushd $apps_dir/hrms/frontend
 #    ynh_use_nodejs
-    ynh_exec_as $app env $ynh_node_load_PATH yarn build
-    ynh_exec_as $app env $ynh_node_load_PATH vite build --base=/assets/hrms/frontend/ && ynh_exec_as $app env $ynh_node_load_PATH yarn copy-html-entry
-popd
-#cp $apps_dir/hrms/hrms/public/frontend/index.html $apps_dir/hrms/hrms/www/hrms.html
-
-#exit 1
-#rm /etc/sudoers.d/$app
+#    ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
+#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app hrms
+#    ynh_exec_as $app env $ynh_node_load_PATH yarn build
+#    vite build --base=/assets/hrms/frontend/ && ynh_exec_as $app env $ynh_node_load_PATH yarn copy-html-entry
+#popd
 
 ynh_script_progression --message="Installing $app new site..." --weight=30
 
