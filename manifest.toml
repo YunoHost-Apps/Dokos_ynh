@@ -68,13 +68,13 @@ ram.runtime = "50M"
 
     [resources.sources]
 
-        [resources.sources.main]
+        [resources.sources.frappe]
         # This will pre-fetch the asset which can then be deployed during the install/upgrade scripts with :
         #    ynh_setup_source --dest_dir="$install_dir"
         # You can also define other assets than "main" and add --source_id="foobar" in the previous command
         url = "https://gitlab.com/dokos/dodock/-/archive/v4.17.0/dodock-v4.17.0.tar.gz"
         sha256 = "966ccba1f9e465acd168985d8e7e8ef1bd45d3957e67c496c8c11d384fae03e9"
-        prefetch = false
+        prefetch = true
 
         # These infos are used by https://github.com/YunoHost/apps/blob/master/tools/autoupdate_app_sources/autoupdate_app_sources.py
         # to auto-update the previous asset urls and sha256sum + manifest version
