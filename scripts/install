@@ -85,25 +85,27 @@ ynh_exec_as $app $install_dir/bin/python -m pip install --upgrade dokos-cli
 
 ynh_script_progression --message="Installing Dodock (frappe), it can take quiet some time..." --weight=30
 
-install_app_to_bench frappe
+error 1
+
+#install_app_to_bench frappe
 
 #echo "$app  ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/$app
 
 #pushd $install_dir/dokos-bench-folder
 #    ynh_use_nodejs
 #    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench init $install_dir/dokos-bench-folder --version v4
-#    ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/python -m pip install wheel
-#    ynh_setup_source --dest_dir="$install_dir/dokos-bench-folder/apps/frappe"
-#    chmod u+x $install_dir/dokos-bench-folder/env/bin/activate
-#    ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/activate
-#    ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/python -m pip install --upgrade -e $install_dir/dokos-bench-folder/apps/frappe
+    ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/python -m pip install wheel
+    ynh_setup_source --dest_dir="$install_dir/dokos-bench-folder/apps/frappe"
+    chmod u+x $install_dir/dokos-bench-folder/env/bin/activate
+    ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/activate
+    ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/python -m pip install --upgrade -e $install_dir/dokos-bench-folder/apps/frappe
 #popd
 
-#pushd $install_dir/dokos-bench-folder/apps/frappe
-#    ynh_use_nodejs
-#    ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
-#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app frappe
-#popd
+pushd $install_dir/dokos-bench-folder/apps/frappe
+    ynh_use_nodejs
+    ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app frappe
+popd
 
 #rm /etc/sudoers.d/$app
 
