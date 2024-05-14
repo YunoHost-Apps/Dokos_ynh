@@ -77,23 +77,15 @@ ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 
-ynh_script_progression --message="Installing $app CLI..." --weight=30
+ynh_script_progression --message="Installing $app CLI and setup $app folder and conf files..." --weight=30
 
+mkdir -p $install_dir/dokos-bench-folder/apps
 mkdir -p $install_dir/dokos-bench-folder/sites
 mkdir -p $install_dir/dokos-bench-folder/logs
-mkdir -p $install_dir/dokos-bench-folder/config
+mkdir -p $install_dir/dokos-bench-folder/config/pids
 chown $app:root -R $install_dir
 
 ynh_exec_as $app $install_dir/bin/python -m pip install --upgrade dokos-cli
-
-ynh_script_progression --message="Installing Dodock (frappe), it can take quiet some time..." --weight=30
-
-#echo "$app  ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/$app
-#pushd $install_dir
-#    ynh_use_nodejs
-#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench init $install_dir/dokos-bench-folder --version v4
-#popd
-#rm /etc/sudoers.d/$app
 
 pushd $install_dir/dokos-bench-folder
 #    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup requirements #make the script fail, could be interesting to check why
@@ -101,27 +93,15 @@ pushd $install_dir/dokos-bench-folder
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup config
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup redis
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup nginx
-#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup systemd #take very very much time, stopped it manualy because it was too long
+#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup systemd #I stopped it manualy because it was too long but it would be nice to see the result
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup procfile
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup socketio
 #    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup fonts #make the script fail because it recquires sudo
-#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench start #make the script fail
 popd
 
+ynh_script_progression --message="Installing Dodock (frappe), it can take quiet some time..." --weight=30
+
 install_app_to_bench frappe
-
-
-#    ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/python -m pip install wheel
-#    ynh_setup_source --dest_dir="$install_dir/dokos-bench-folder/apps/frappe"
-#    chmod u+x $install_dir/dokos-bench-folder/env/bin/activate
-#    ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/activate
-#    ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/python -m pip install --upgrade -e $install_dir/dokos-bench-folder/apps/frappe
-
-#pushd $install_dir/dokos-bench-folder/apps/frappe
-#    ynh_use_nodejs
-#    ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
-#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app frappe
-#popd
 
 ynh_script_progression --message="Installing $app..." --weight=30
 
