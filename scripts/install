@@ -79,7 +79,7 @@ ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
 
 ynh_script_progression --message="Installing $app CLI and setup $app folder and conf files..." --weight=30
 
-mkdir -p $install_dir/dokos-bench-folder/apps/frappe
+#mkdir -p $install_dir/dokos-bench-folder/apps/frappe
 mkdir -p $install_dir/dokos-bench-folder/sites
 mkdir -p $install_dir/dokos-bench-folder/logs
 mkdir -p $install_dir/dokos-bench-folder/config/pids
@@ -90,6 +90,7 @@ ynh_exec_as $app $install_dir/bin/python -m pip install --upgrade dokos-cli
 pushd $install_dir/dokos-bench-folder
 #    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup requirements #make the script fail, could be interesting to check why
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup env
+    mkdir -p $install_dir/dokos-bench-folder/apps
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup config
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup redis
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup nginx
