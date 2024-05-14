@@ -89,14 +89,14 @@ ynh_exec_as $app $install_dir/bin/python -m pip install --upgrade dokos-cli
 
 pushd $install_dir/dokos-bench-folder
 #    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup requirements #make the script fails, could be interesting to check why
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup env
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup config
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup redis
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup nginx
-#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup systemd #I stopped it manualy because it was too long but it would be nice to see the result
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup procfile
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup socketio
-#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup fonts #make the script fails because it recquires sudo
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup env # Setup Python's virtual environment for your bench. This sets up a env folder under the root of the bench directory.
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup config # Generate or over-write sites/common_site_config.json
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup redis # Generates configuration for Redis
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup nginx # Generate configuration files for NGINX. Clearly unacessary as we don't use it.
+#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup systemd # I stopped it manualy because it was too long but it would be nice to see the result
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup procfile # Generate Procfile for bench start
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup socketio # Setup node dependencies for socketio server
+#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup fonts # Add Frappe fonts to system. Make the script fails because it recquires sudo
 popd
 
 ynh_script_progression --message="Installing Dodock (frappe), it can take quiet some time..." --weight=30
