@@ -80,24 +80,28 @@ ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
 ynh_script_progression --message="Installing $app CLI..." --weight=30
 
 #mkdir -p $install_dir/dokos-bench-folder/sites
+#mkdir -p $install_dir/dokos-bench-folder/logs
 chown $app:root -R $install_dir
 
 ynh_exec_as $app $install_dir/bin/python -m pip install --upgrade dokos-cli
 
 ynh_script_progression --message="Installing Dodock (frappe), it can take quiet some time..." --weight=30
 
+echo "$app  ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/$app
 pushd $install_dir
     ynh_use_nodejs
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench init $install_dir/dokos-bench-folder --version v4
 popd
+rm /etc/sudoers.d/$app
 
 #pushd $install_dir/dokos-bench-folder
 #    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup env
+#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup config
+#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup procfile
 #popd
 
 #install_app_to_bench frappe
 
-echo "$app  ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/$app
 
 #    ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/python -m pip install wheel
 #    ynh_setup_source --dest_dir="$install_dir/dokos-bench-folder/apps/frappe"
@@ -110,8 +114,6 @@ echo "$app  ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/$app
 #    ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
 #    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app frappe
 #popd
-
-rm /etc/sudoers.d/$app
 
 ynh_script_progression --message="Installing $app..." --weight=30
 
