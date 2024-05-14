@@ -96,7 +96,7 @@ ynh_script_progression --message="Installing Dodock (frappe), it can take quiet 
 #rm /etc/sudoers.d/$app
 
 pushd $install_dir/dokos-bench-folder
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup requirements
+#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup requirements
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup env
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup config
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup redis
