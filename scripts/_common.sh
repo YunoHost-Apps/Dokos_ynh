@@ -24,7 +24,7 @@ install_app_to_bench() {
     if test -f "$apps_list"; then
         ynh_exec_as $app echo -e "\n$1" >> $apps_list
     else 
-        ynh_exec_as $app echo -e "n$1" >> $apps_list
+        ynh_exec_as $app echo -e "$1" >> $apps_list
     fi
 
     pushd $apps_dir/$1
