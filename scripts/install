@@ -101,10 +101,11 @@ pushd $install_dir/dokos-bench-folder
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup config
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup redis
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup nginx
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup systemd
+#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup systemd
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup procfile
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup socketio
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup fonts
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench start
 popd
 
 install_app_to_bench frappe
