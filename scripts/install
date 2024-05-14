@@ -96,16 +96,16 @@ ynh_script_progression --message="Installing Dodock (frappe), it can take quiet 
 #rm /etc/sudoers.d/$app
 
 pushd $install_dir/dokos-bench-folder
-#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup requirements
+#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup requirements #make the script fail, could be interesting to check why
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup env
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup config
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup redis
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup nginx
-#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup systemd
+#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup systemd #take very very much time, stopped it manualy because it was too long
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup procfile
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup socketio
-#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup fonts
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench start
+#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup fonts #make the script fail because it recquires sudo
+#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench start #make the script fail
 popd
 
 install_app_to_bench frappe
