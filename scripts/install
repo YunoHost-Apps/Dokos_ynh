@@ -90,7 +90,6 @@ ynh_exec_as $app $install_dir/bin/python -m pip install --upgrade dokos-cli
 pushd $install_dir/dokos-bench-folder
 #    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup requirements #make the script fail, could be interesting to check why
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup env
-    mkdir -p $install_dir/dokos-bench-folder/apps
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup config
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup redis
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup nginx
