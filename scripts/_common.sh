@@ -30,7 +30,7 @@ install_app_to_bench() {
     pushd $apps_dir/$1
         ynh_use_nodejs
         ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
-        ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app $1
+        ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app $1 # Builds assets for the Frappe Applications installed on bench
     popd
 
 }

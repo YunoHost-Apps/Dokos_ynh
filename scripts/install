@@ -79,7 +79,7 @@ ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
 
 ynh_script_progression --message="Installing $app CLI and setup $app folder and conf files..." --weight=30
 
-#mkdir -p $install_dir/dokos-bench-folder/apps/frappe #without this folder, bench command display a warning that they don't run in a bench folder but if created now, it creates a python error https://github.com/frappe/frappe/issues/26346#issuecomment-2111085990
+#mkdir -p $install_dir/dokos-bench-folder/apps/frappe # Without this folder, bench command display a warning that they don't run in a bench folder but if created now, it creates a python error https://github.com/frappe/frappe/issues/26346#issuecomment-2111085990
 mkdir -p $install_dir/dokos-bench-folder/sites
 mkdir -p $install_dir/dokos-bench-folder/logs
 mkdir -p $install_dir/dokos-bench-folder/config/pids
@@ -119,6 +119,7 @@ ynh_script_progression --message="Installing $app new site..." --weight=30
 
 pushd $install_dir/dokos-bench-folder
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench new-site $site_name --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $admin_pwd
+# https://frappeframework.com/docs/user/en/bench/reference/new-site
 popd
 
 chmod 755 "$install_dir"
@@ -210,6 +211,7 @@ pushd $install_dir/dokos-bench-folder
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $site_name install-app payments
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $site_name install-app dokos
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $site_name install-app hrms
+    # Install a Frappe Application on your site is through the Bench CLI. However, the application must be installed on your bench prior to that. In this operation, Application meta, modules and doctypes of the specified site are installed on the specified site.
 popd
 
 #Now to make sure the environment is fully setup
