@@ -20,7 +20,12 @@ install_app_to_bench() {
 
     chown -R $app:www-data "$apps_dir/$1"
 
-    ynh_exec_as $app echo -e "\n$1" >> $install_dir/dokos-bench-folder/sites/apps.txt
+    local apps_list=$install_dir/dokos-bench-folder/sites/apps.txt
+    if test -f "$apps_list"; then
+        ynh_exec_as $app echo -e "\n$1" >> $apps_list
+    else 
+        ynh_exec_as $app echo -e "n$1" >> $apps_list
+    fi
 
     pushd $apps_dir/$1
         ynh_use_nodejs
