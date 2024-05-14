@@ -79,11 +79,10 @@ ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
 
 ynh_script_progression --message="Installing $app CLI and setup $app folder and conf files..." --weight=30
 
-#mkdir -p $install_dir/dokos-bench-folder/apps
+mkdir -p $install_dir/dokos-bench-folder/apps/frappe
 mkdir -p $install_dir/dokos-bench-folder/sites
 mkdir -p $install_dir/dokos-bench-folder/logs
-mkdir -p $install_dir/dokos-bench-folder/config
-#mkdir -p $install_dir/dokos-bench-folder/config/pids
+mkdir -p $install_dir/dokos-bench-folder/config/pids
 chown $app:root -R $install_dir
 
 ynh_exec_as $app $install_dir/bin/python -m pip install --upgrade dokos-cli
