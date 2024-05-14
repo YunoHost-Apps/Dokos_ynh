@@ -79,7 +79,7 @@ ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
 
 ynh_script_progression --message="Installing $app CLI and setup $app folder and conf files..." --weight=30
 
-#mkdir -p $install_dir/dokos-bench-folder/apps/frappe
+#mkdir -p $install_dir/dokos-bench-folder/apps/frappe #without this folder, bench command display a warning that they don't run in a bench folder but if created now, it creates a python error https://github.com/frappe/frappe/issues/26346#issuecomment-2111085990
 mkdir -p $install_dir/dokos-bench-folder/sites
 mkdir -p $install_dir/dokos-bench-folder/logs
 mkdir -p $install_dir/dokos-bench-folder/config/pids
