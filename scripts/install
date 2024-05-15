@@ -93,7 +93,9 @@ pushd $install_dir/dokos-bench-folder
     # Generate or over-write sites/common_site_config.json
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup config
     # Generates configuration for Redis
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup redis
+#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup redis
+    ynh_add_config --template="../conf/redis_queue.conf" --destination="$install_dir/dokos-bench-folder/config/redis_queue.conf"
+    ynh_add_config --template="../conf/redis_cache.conf" --destination="$install_dir/dokos-bench-folder/config/redis_cache.conf"
     # Generate Procfile for bench start
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup procfile
     # Setup node dependencies for socketio server
