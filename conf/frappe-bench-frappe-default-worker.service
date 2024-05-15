@@ -1,5 +1,5 @@
 [Unit]
-Description="__APP__-frappe-default-worker %I"
+Description="__APP__-frappe-default-worker"
 PartOf=__APP__-workers.target
 
 [Service]

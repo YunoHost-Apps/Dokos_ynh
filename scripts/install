@@ -175,21 +175,24 @@ yunohost service add "$app-redis-cache" --description="$app redis cache service"
 yunohost service add "$app-redis-queue" --description="$app redis queue service"
 yunohost service add "$app-node-socketio" --description="$app node socketio service"
 
+systemctl enable "$app-redis.target" --quiet
+systemctl enable "$app-web.target" --quiet
+systemctl enable "$app-workers.target" --quiet
+systemctl enable "$app.target" --quiet
 
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
 ynh_script_progression --message="Starting systemd services..." --weight=1
 
-ynh_systemd_action --service_name=$app-frappe-default-worker --action="start" --log_path=systemd --line_match="Default worker ready"
-ynh_systemd_action --service_name=$app-frappe-long-worker --action="start" --log_path=systemd --line_match="Long worker ready"
-ynh_systemd_action --service_name=$app-frappe-short-worker --action="start" --log_path=systemd --line_match="Short worker ready"
-ynh_systemd_action --service_name=$app-frappe-schedule --action="start" --log_path=systemd --line_match="Schedules Loaded"
-ynh_systemd_action --service_name=$app-frappe-web --action="start" --log_path=systemd --line_match="Server listening on"
-ynh_systemd_action --service_name=$app-redis-cache --action="start" --log_path=systemd --line_match="Redis cache ready"
-ynh_systemd_action --service_name=$app-redis-queue --action="start" --log_path=systemd --line_match="Redis queue ready"
-ynh_systemd_action --service_name=$app-node-socketio --action="start" --log_path=systemd --line_match="Node socketio ready"
-
+ynh_systemd_action --service_name=$app-frappe-default-worker --action="start" --log_path="systemd" --line_match="Listening on var-www-dokos-dokos-bench-folder:default"
+ynh_systemd_action --service_name=$app-frappe-long-worker --action="start" --log_path="systemd" --line_match="Listening on var-www-dokos-dokos-bench-folder:long"
+ynh_systemd_action --service_name=$app-frappe-short-worker --action="start" --log_path="systemd" --line_match="Listening on var-www-dokos-dokos-bench-folder:short"
+ynh_systemd_action --service_name=$app-frappe-schedule --action="start" --log_path="systemd" --line_match="dokos-frappe-schedule"
+ynh_systemd_action --service_name=$app-frappe-web --action="start" --log_path="systemd" --line_match="dokos-frappe-web"
+ynh_systemd_action --service_name=$app-redis-cache --action="start" --log_path="systemd" --line_match="Ready to accept connections"
+ynh_systemd_action --service_name=$app-redis-queue --action="start" --log_path="systemd" --line_match="Ready to accept connections"
+ynh_systemd_action --service_name=$app-node-socketio --action="start" --log_path="systemd" --line_match="Realtime service listening on"
 
 #=================================================
 # RELOAD NGINX
