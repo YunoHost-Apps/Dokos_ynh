@@ -18,7 +18,7 @@ install_app_to_bench() {
     ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/activate
     ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/python -m pip install --upgrade -e $apps_dir/$1
 
-    chown -R $app:www-data "$apps_dir/$1"
+    chown $app: -R "$apps_dir/$1"
 
     local apps_list=$install_dir/dokos-bench-folder/sites/apps.txt
     if test -f "$apps_list"; then
