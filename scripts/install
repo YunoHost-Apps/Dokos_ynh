@@ -181,14 +181,14 @@ yunohost service add "$app-node-socketio" --description="$app node socketio serv
 #=================================================
 ynh_script_progression --message="Starting systemd services..." --weight=1
 
-ynh_systemd_action --service_name=${app}-frappe-default-worker --action="start" --log_path=systemd --line_match="Default worker ready"
-ynh_systemd_action --service_name=${app}-frappe-long-worker --action="start" --log_path=systemd --line_match="Long worker ready"
-ynh_systemd_action --service_name=${app}-frappe-short-worker --action="start" --log_path=systemd --line_match="Short worker ready"
-ynh_systemd_action --service_name=${app}-frappe-schedule --action="start" --log_path=systemd --line_match="Schedules Loaded"
-ynh_systemd_action --service_name=${app}-frappe-web --action="start" --log_path=systemd --line_match="Server listening on"
-ynh_systemd_action --service_name=${app}-redis-cache --action="start" --log_path=systemd --line_match="Redis cache ready"
-ynh_systemd_action --service_name=${app}-redis-queue --action="start" --log_path=systemd --line_match="Redis queue ready"
-ynh_systemd_action --service_name=${app}-node-socketio --action="start" --log_path=systemd --line_match="Node socketio ready"
+ynh_systemd_action --service_name=$app-frappe-default-worker --action="start" --log_path=systemd --line_match="Default worker ready"
+ynh_systemd_action --service_name=$app-frappe-long-worker --action="start" --log_path=systemd --line_match="Long worker ready"
+ynh_systemd_action --service_name=$app-frappe-short-worker --action="start" --log_path=systemd --line_match="Short worker ready"
+ynh_systemd_action --service_name=$app-frappe-schedule --action="start" --log_path=systemd --line_match="Schedules Loaded"
+ynh_systemd_action --service_name=$app-frappe-web --action="start" --log_path=systemd --line_match="Server listening on"
+ynh_systemd_action --service_name=$app-redis-cache --action="start" --log_path=systemd --line_match="Redis cache ready"
+ynh_systemd_action --service_name=$app-redis-queue --action="start" --log_path=systemd --line_match="Redis queue ready"
+ynh_systemd_action --service_name=$app-node-socketio --action="start" --log_path=systemd --line_match="Node socketio ready"
 
 
 #=================================================
