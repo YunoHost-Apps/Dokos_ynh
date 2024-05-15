@@ -185,14 +185,14 @@ systemctl enable "$app.target" --quiet
 #=================================================
 ynh_script_progression --message="Starting systemd services..." --weight=1
 
-ynh_systemd_action --service_name=$app-frappe-default-worker --action="start" --log_path="systemd" --line_match="Listening on var-www-dokos-dokos-bench-folder:default"
-ynh_systemd_action --service_name=$app-frappe-long-worker --action="start" --log_path="systemd" --line_match="Listening on var-www-dokos-dokos-bench-folder:long"
-ynh_systemd_action --service_name=$app-frappe-short-worker --action="start" --log_path="systemd" --line_match="Listening on var-www-dokos-dokos-bench-folder:short"
+ynh_systemd_action --service_name=$app-frappe-default-worker --action="start" --log_path="systemd" --line_match="dokos-frappe-default-worker"
+ynh_systemd_action --service_name=$app-frappe-long-worker --action="start" --log_path="systemd" --line_match="dokos-frappe-long-worker"
+ynh_systemd_action --service_name=$app-frappe-short-worker --action="start" --log_path="systemd" --line_match="dokos-frappe-short-worker"
 ynh_systemd_action --service_name=$app-frappe-schedule --action="start" --log_path="systemd" --line_match="dokos-frappe-schedule"
 ynh_systemd_action --service_name=$app-frappe-web --action="start" --log_path="systemd" --line_match="dokos-frappe-web"
-ynh_systemd_action --service_name=$app-redis-cache --action="start" --log_path="systemd" --line_match="Ready to accept connections"
-ynh_systemd_action --service_name=$app-redis-queue --action="start" --log_path="systemd" --line_match="Ready to accept connections"
-ynh_systemd_action --service_name=$app-node-socketio --action="start" --log_path="systemd" --line_match="Realtime service listening on"
+ynh_systemd_action --service_name=$app-redis-cache --action="start" --log_path="$install_dir/dokos-bench-folder/logs/redis-cache.log" --line_match="Ready to accept connections"
+ynh_systemd_action --service_name=$app-redis-queue --action="start" --log_path="$install_dir/dokos-bench-folder/logs/redis-queue.log" --line_match="Ready to accept connections"
+ynh_systemd_action --service_name=$app-node-socketio --action="start" --log_path="$install_dir/dokos-bench-folder/logs/node-socketio.log" --line_match="Realtime service listening on"
 
 #=================================================
 # RELOAD NGINX
