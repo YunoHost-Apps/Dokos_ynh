@@ -61,7 +61,7 @@ pushd $install_dir
 popd
 
 # Install virtualenv if it doesn't exist
-#test -e python3 || python3 -m venv $install_dir
+test -e python3 || python3 -m venv $install_dir
 
 #=================================================
 # Update MYSQL database to utf8
