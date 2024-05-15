@@ -194,6 +194,11 @@ ynh_systemd_action --service_name=$app-redis-cache --action="start" --log_path="
 ynh_systemd_action --service_name=$app-redis-queue --action="start" --log_path="$install_dir/dokos-bench-folder/logs/redis-queue.log" --line_match="Ready to accept connections"
 ynh_systemd_action --service_name=$app-node-socketio --action="start" --log_path="$install_dir/dokos-bench-folder/logs/node-socketio.log" --line_match="Realtime service listening on"
 
+systemctl start "$app-redis.target" --quiet
+systemctl start "$app-web.target" --quiet
+systemctl start "$app-workers.target" --quiet
+systemctl start "$app.target" --quiet
+
 #=================================================
 # RELOAD NGINX
 #=================================================
