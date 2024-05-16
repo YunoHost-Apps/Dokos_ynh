@@ -163,36 +163,40 @@ ynh_add_systemd_config --service="$app-node-socketio" --template="frappe-bench-n
 # GENERIC FINALIZATION
 #=================================================
 # INTEGRATE SERVICE IN YUNOHOST
-#=========================but doesn't========================
+#=================================================
 ynh_script_progression --message="Integrating service in YunoHost..." --weight=1
 
-yunohost service add "$app-frappe-default-worker" --description="$app default worker service"
-yunohost service add "$app-frappe-long-worker" --description="$app long worker service"
-yunohost service add "$app-frappe-short-worker" --description="$app short worker service"
-yunohost service add "$app-frappe-schedule" --description="$app schedule service"
-yunohost service add "$app-frappe-web" --description="$app web service"
-yunohost service add "$app-redis-cache" --description="$app redis cache service"
-yunohost service add "$app-redis-queue" --description="$app redis queue service"
-yunohost service add "$app-node-socketio" --description="$app node socketio service"
-
 systemctl enable "$app-redis.target" --quiet
-systemctl enable "$app-web.target" --quiet
 systemctl enable "$app-workers.target" --quiet
+systemctl enable "$app-web.target" --quiet
 systemctl enable "$app.target" --quiet
+
+yunohost service add "$app.target" --description="$app services"
+
+#yunohost service add "$app-frappe-default-worker" --description="$app default worker service"
+#yunohost service add "$app-frappe-long-worker" --description="$app long worker service"
+#yunohost service add "$app-frappe-short-worker" --description="$app short worker service"
+#yunohost service add "$app-frappe-schedule" --description="$app schedule service"
+#yunohost service add "$app-frappe-web" --description="$app web service"
+#yunohost service add "$app-redis-cache" --description="$app redis cache service"
+#yunohost service add "$app-redis-queue" --description="$app redis queue service"
+#yunohost service add "$app-node-socketio" --description="$app node socketio service"
 
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
 ynh_script_progression --message="Starting systemd services..." --weight=1
 
-ynh_systemd_action --service_name=$app-frappe-default-worker --action="start" --log_path="systemd" --line_match="dokos-frappe-default-worker"
-ynh_systemd_action --service_name=$app-frappe-long-worker --action="start" --log_path="systemd" --line_match="dokos-frappe-long-worker"
-ynh_systemd_action --service_name=$app-frappe-short-worker --action="start" --log_path="systemd" --line_match="dokos-frappe-short-worker"
-ynh_systemd_action --service_name=$app-frappe-schedule --action="start" --log_path="systemd" --line_match="dokos-frappe-schedule"
-ynh_systemd_action --service_name=$app-frappe-web --action="start" --log_path="systemd" --line_match="dokos-frappe-web"
-ynh_systemd_action --service_name=$app-redis-cache --action="start" --log_path="$install_dir/dokos-bench-folder/logs/redis-cache.log" --line_match="Ready to accept connections"
-ynh_systemd_action --service_name=$app-redis-queue --action="start" --log_path="$install_dir/dokos-bench-folder/logs/redis-queue.log" --line_match="Ready to accept connections"
-ynh_systemd_action --service_name=$app-node-socketio --action="start" --log_path="$install_dir/dokos-bench-folder/logs/node-socketio.log" --line_match="Realtime service listening on"
+ynh_systemd_action --service_name=$app.target --action="start" --log_path="$install_dir/dokos-bench-folder/logs/node-socketio.log" --line_match="Realtime service listening on"
+
+#ynh_systemd_action --service_name=$app-frappe-default-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/worker.log" --line_match="Listening on var-www-dokos-dokos-bench-folder:default"
+#ynh_systemd_action --service_name=$app-frappe-long-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/worker.log" --line_match="Listening on var-www-dokos-dokos-bench-folder:long"
+#ynh_systemd_action --service_name=$app-frappe-short-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/worker.log" --line_match="Listening on var-www-dokos-dokos-bench-folder:short"
+#ynh_systemd_action --service_name=$app-frappe-schedule --action="start" --log_path="systemd" --line_match="Started dokos-frappe-schedule.service - "
+#ynh_systemd_action --service_name=$app-frappe-web --action="start" --log_path="systemd" --line_match="Started dokos-frappe-web.service - "
+#ynh_systemd_action --service_name=$app-redis-cache --action="start" --log_path="$install_dir/dokos-bench-folder/logs/redis-cache.log" --line_match="Ready to accept connections"
+#ynh_systemd_action --service_name=$app-redis-queue --action="start" --log_path="$install_dir/dokos-bench-folder/logs/redis-queue.log" --line_match="Ready to accept connections"
+#ynh_systemd_action --service_name=$app-node-socketio --action="start" --log_path="$install_dir/dokos-bench-folder/logs/node-socketio.log" --line_match="Realtime service listening on"
 
 #systemctl start "$app-redis.target" --quiet
 #systemctl start "$app-web.target" --quiet

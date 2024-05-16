@@ -1,6 +1,6 @@
 [Unit]
 Description="Dokos (__APP__) web"
-After=network.target
+After=__APP__--workers.target
 Wants=__APP__-frappe-web.service __APP__-node-socketio.service
 
 [Install]

@@ -1,6 +1,6 @@
 [Unit]
 Description="Dokos (__APP__)"
-After=network.target
+After=__APP__-web.target
 Requires=__APP__-web.target __APP__-workers.target __APP__-redis.target
 
 [Install]
