@@ -1,5 +1,5 @@
 [Unit]
-Description="__APP__-frappe-default-worker %I"
+Description="__APP__-frappe-default-worker"
 PartOf=__APP__-workers.target
 
 [Service]
@@ -7,6 +7,6 @@ User=__APP__
 Group=__APP__
 Restart=always
 ExecStart=__INSTALL_DIR__/bin/bench worker --queue default
-StandardOutput=file:__INSTALL_DIR__/dokos-bench-folder/logs/worker.log
+StandardOutput=file:__INSTALL_DIR__/dokos-bench-folder/logs/default-worker.log
 StandardError=file:__INSTALL_DIR__/dokos-bench-folder/logs/worker.error.log
 WorkingDirectory=__INSTALL_DIR__/dokos-bench-folder
