@@ -36,10 +36,6 @@ ram.runtime = "50M"
     # this is a generic question - ask strings are automatically handled by YunoHost's core
     type = "domain"
 
-    [install.path]
-    # this is a generic question - ask strings are automatically handled by YunoHost's core
-
-
     [install.init_main_permission]
     # this is a generic question - ask strings are automatically handled by YunoHost's core
     # This won't be saved as setting and will instead be used to initialize the SSOwat permission
