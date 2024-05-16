@@ -93,7 +93,6 @@ pushd $install_dir/dokos-bench-folder
     # Generate or over-write sites/common_site_config.json
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup config
     # Generates configuration for Redis
-#    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup redis
     ynh_add_config --template="../conf/redis_queue.conf" --destination="$install_dir/dokos-bench-folder/config/redis_queue.conf"
     ynh_add_config --template="../conf/redis_cache.conf" --destination="$install_dir/dokos-bench-folder/config/redis_cache.conf"
     # Generate Procfile for bench start
@@ -138,7 +137,7 @@ ynh_script_progression --message="Configuring NGINX web server..." --weight=1
 ynh_add_nginx_config
 
 #=================================================
-# SYSTEM CONFIGURATION
+# SYSTEMD CONFIGURATION
 #=================================================
 ynh_script_progression --message="Adding systemd configurations related to $app..."
 
@@ -162,6 +161,8 @@ ynh_add_systemd_config --service="$app-node-socketio" --template="frappe-bench-n
 
 systemctl daemon-reload
 
+# Enable target systemd files
+
 systemctl enable "$app-redis.target" --quiet
 systemctl enable "$app-workers.target" --quiet
 systemctl enable "$app-web.target" --quiet
@@ -170,7 +171,7 @@ systemctl enable "$app.target" --quiet
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
-# INTEGRATE SERVICE IN YUNOHOST
+# INTEGRATE SERVICES IN YUNOHOST
 #=================================================
 ynh_script_progression --message="Integrating services in YunoHost..." --weight=1
 
@@ -184,7 +185,7 @@ yunohost service add "$app-frappe-web" --description="$app web service"
 yunohost service add "$app-node-socketio" --description="$app node socketio service"
 
 #=================================================
-# START SYSTEMD SERVICE
+# START SYSTEMD SERVICES
 #=================================================
 ynh_script_progression --message="Starting systemd services..." --weight=1
 
@@ -233,7 +234,7 @@ pushd $install_dir/dokos-bench-folder
     
 popd
 
-#Now to make sure the environment is fully setup
+#N ow to make sure the environment is fully setup
 chmod 755 "$install_dir"
 chown $app: -R $install_dir
 
