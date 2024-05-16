@@ -140,7 +140,7 @@ ynh_add_nginx_config
 #=================================================
 # SYSTEM CONFIGURATION
 #=================================================
-ynh_script_progression --message="Adding system configurations related to $app..."
+ynh_script_progression --message="Adding systemd configurations related to $app..."
 
 ### `ynh_systemd_config` is used to configure a systemd script for an app, using the conf/systemd.service template
 
@@ -164,14 +164,20 @@ ynh_add_systemd_config --service="$app-node-socketio" --template="frappe-bench-n
 #=================================================
 # INTEGRATE SERVICE IN YUNOHOST
 #=================================================
-ynh_script_progression --message="Integrating service in YunoHost..." --weight=1
+ynh_script_progression --message="Integrating services in YunoHost..." --weight=1
 
 systemctl enable "$app-redis.target" --quiet
 systemctl enable "$app-workers.target" --quiet
 systemctl enable "$app-web.target" --quiet
 systemctl enable "$app.target" --quiet
 
-yunohost service add "$app.target" --description="$app services"
+yunohost service add "$app.target" --description="$app services" \
+  --log "$install_dir/dokos-bench-folder/logs/redis-queue.log" \
+        "$install_dir/dokos-bench-folder/logs/redis-cache.log" \
+        "$install_dir/dokos-bench-folder/logs/worker.log" \
+        "$install_dir/dokos-bench-folder/logs/schedule.log" \
+        "$install_dir/dokos-bench-folder/logs/web.log" \
+        "$install_dir/dokos-bench-folder/logs/node-socketio.log"
 
 #yunohost service add "$app-frappe-default-worker" --description="$app default worker service"
 #yunohost service add "$app-frappe-long-worker" --description="$app long worker service"
