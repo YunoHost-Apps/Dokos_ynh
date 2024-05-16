@@ -36,8 +36,6 @@ source /usr/share/yunohost/helpers
 #=================================================
 # RETRIEVE ARGUMENTS FROM THE MANIFEST
 #=================================================
-admin_pwd=$YNH_APP_ARG_PASSWORD
-site_name=$domain
 #python_version="$(python3 -V | cut -d' ' -f2 | cut -d. -f1-2)"
 
 #=================================================
@@ -118,7 +116,7 @@ ynh_script_progression --message="Installing $app new site..." --weight=30
 
 pushd $install_dir/dokos-bench-folder
     # doc about bench new-site https://frappeframework.com/docs/user/en/bench/reference/new-site
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench new-site $site_name --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $admin_pwd
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench new-site $domain --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $YNH_APP_ARG_PASSWORD
 popd
 
 chmod 755 "$install_dir"
@@ -215,16 +213,16 @@ ynh_script_progression --message="Enabling Scheduler..." --weight=1
 
 pushd $install_dir/dokos-bench-folder
     ynh_use_nodejs
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $site_name scheduler enable && \
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $site_name scheduler resume && \
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain scheduler enable && \
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain scheduler resume && \
 
     ynh_script_progression --message="Adding apps Payments, Dokos and Hrms to your website."
 
     # Install Frappe applications on your site through the Bench CLI. Applications must be installed on your bench prior to that.
     # In this operation, applications meta, modules and doctypes of the specified site are installed on the specified site.
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $site_name install-app payments
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $site_name install-app dokos
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $site_name install-app hrms
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain install-app payments
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain install-app dokos
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain install-app hrms
     
 popd
 
