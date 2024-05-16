@@ -1,0 +1,12 @@
+[Unit]
+Description="__APP__-frappe-schedule"
+PartOf=__APP__-workers.target
+
+[Service]
+User=__APP__
+Group=__APP__
+Restart=always
+ExecStart=__INSTALL_DIR__/bin/bench schedule
+StandardOutput=file:__INSTALL_DIR__/dokos-bench-folder/logs/schedule.log
+StandardError=file:__INSTALL_DIR__/dokos-bench-folder/logs/schedule.error.log
+WorkingDirectory=__INSTALL_DIR__/dokos-bench-folder

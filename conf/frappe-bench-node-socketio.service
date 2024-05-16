@@ -1,0 +1,13 @@
+[Unit]
+After=__APP__-frappe-web.service
+Description="__APP__-node-socketio"
+PartOf=__APP__-web.target
+
+[Service]
+User=__APP__
+Group=__APP__
+Restart=always
+ExecStart=__YNH_NODE__ __INSTALL_DIR__/dokos-bench-folder/apps/frappe/socketio.js
+StandardOutput=file:__INSTALL_DIR__/dokos-bench-folder/logs/node-socketio.log
+StandardError=file:__INSTALL_DIR__/dokos-bench-folder/logs/node-socketio.error.log
+WorkingDirectory=__INSTALL_DIR__/dokos-bench-folder

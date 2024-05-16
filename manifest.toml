@@ -22,7 +22,7 @@ code = "https://gitlab.com/dokos/dokos"
 yunohost = '>= 12.0'
 # List of supported archs using the dpkg --print-architecture nomenclature (amd64/i386/armhf/arm64), for example: ["amd64", "i386']
 architectures = "amd64" # TODO : handle the "all" option (no ["all"])
-multi_instance = true
+multi_instance = "false"
 #ldap = "true" # TODO : fixme, use actual booleans + handle the "not_relevant" value
 sso = "false"
 # FIXME: replace with an **estimate** minimum disk and RAM requirements. e.g. 20M, 400M, 1G... You may have have a look at CI results
@@ -35,11 +35,6 @@ ram.runtime = "50M"
     [install.domain]
     # this is a generic question - ask strings are automatically handled by YunoHost's core
     type = "domain"
-
- #   [install.path]
-    # this is a generic question - ask strings are automatically handled by YunoHost's core
- #   type = "path"
- #   default = "/example"
 
     [install.init_main_permission]
     # this is a generic question - ask strings are automatically handled by YunoHost's core
@@ -68,19 +63,39 @@ ram.runtime = "50M"
 
     [resources.sources]
 
-        [resources.sources.main]
+        [resources.sources.frappe]
         # This will pre-fetch the asset which can then be deployed during the install/upgrade scripts with :
         #    ynh_setup_source --dest_dir="$install_dir"
         # You can also define other assets than "main" and add --source_id="foobar" in the previous command
-        url = "https://gitlab.com/dokos/dokos/-/archive/v4.11.3/dokos-v4.11.3.tar.gz"
-        sha256 = "13f1c6ac8723de6b86783b5f8858aa7d8d0ba0a8f669fb0a67f6b13d2eacee8c"
+        url = "https://gitlab.com/dokos/dodock/-/archive/v4.17.0/dodock-v4.17.0.tar.gz"
+        sha256 = "966ccba1f9e465acd168985d8e7e8ef1bd45d3957e67c496c8c11d384fae03e9"
+        prefetch = true
 
         # These infos are used by https://github.com/YunoHost/apps/blob/master/tools/autoupdate_app_sources/autoupdate_app_sources.py
         # to auto-update the previous asset urls and sha256sum + manifest version
         # assuming the upstream's code repo is on github and relies on tags or releases
         # See the 'sources' resource documentation for more details
 
-        # autoupdate.strategy = "latest_gitlab_release"
+        autoupdate.strategy = "latest_gitlab_release"
+
+        [resources.sources.erpnext]
+        url = "https://gitlab.com/dokos/dokos/-/archive/v4.16.2/dokos-v4.16.2.tar.gz"
+        sha256 = "16fd66a376f99757660ff29eb66add2a71e74c64d97e3e20bba4ee7cd340efc3"
+        prefetch = true
+        autoupdate.strategy = "latest_gitlab_release"
+
+        [resources.sources.payments]
+        url = "https://gitlab.com/dokos/payments/-/archive/v2.3.0/payments-v2.3.0.tar.gz"
+        sha256 = "5eaad118939ae1e6b94194e603c7d42d017cb0d9587a668d7b31c91078d1abd9"
+        prefetch = true
+        autoupdate.strategy = "latest_gitlab_release"
+
+        [resources.sources.hrms]
+        url = "https://gitlab.com/dokos/hrms/-/archive/v2.17.1/hrms-v2.17.1.tar.gz"
+        sha256 = "ea412e30f37ac160c1b9a8ce268f09d1e585a8983436ed2dc1ffc2fe4f506ae2"
+        prefetch = true
+        autoupdate.strategy = "latest_gitlab_release"
+
 
     [resources.system_user]
     # This will provision/deprovision a unix system user
@@ -89,15 +104,10 @@ ram.runtime = "50M"
     [resources.install_dir]
     # This will create/remove the install dir as /var/www/$app
     # and store the corresponding setting $install_dir
-#    dir = "/var/www/__APP__"
-#    owner = "__APP__:rwX"
-#    group = "__APP__:rwX"
-#    other = "__APP__:rwX"
 
     [resources.data_dir]
     # This will create/remove the data dir as /home/yunohost.app/$app
     # and store the corresponding setting $data_dir
-#    dir = "/var/www/__APP__/__DOMAIN__"
 
     [resources.permissions]
     # This will configure SSOwat permission for $domain/$path/
@@ -106,6 +116,8 @@ ram.runtime = "50M"
 
     [resources.ports]
     # This will pick a random port for reverse-proxying and store it as the $port setting
+    redis_cache.default = 13000
+    redis_queue.default = 11000
 
     [resources.apt]
     # This will automatically install/uninstall the following apt packages

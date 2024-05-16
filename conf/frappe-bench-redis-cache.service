@@ -1,0 +1,12 @@
+[Unit]
+Description="__APP__-redis-cache"
+PartOf=__APP__-redis.target
+
+[Service]
+User=__APP__
+Group=__APP__
+Restart=always
+ExecStart=/usr/bin/redis-server __INSTALL_DIR__/dokos-bench-folder/config/redis_cache.conf
+StandardOutput=file:__INSTALL_DIR__/dokos-bench-folder/logs/redis-cache.log
+StandardError=file:__INSTALL_DIR__/dokos-bench-folder/logs/redis-cache.error.log
+WorkingDirectory=__INSTALL_DIR__/dokos-bench-folder/sites
