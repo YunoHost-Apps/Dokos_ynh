@@ -142,7 +142,7 @@ ynh_script_progression --message="Enabling Scheduler..." --weight=1
 pushd $install_dir/dokos-bench-folder
     ynh_use_nodejs
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain scheduler enable && \
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain scheduler resume    
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain scheduler resume
 popd
 
 # Now to make sure the environment is fully setup
