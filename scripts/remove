@@ -31,14 +31,42 @@ source /usr/share/yunohost/helpers
 #=================================================
 
 # Remove the service from the list of services known by YunoHost (added from `yunohost service add`)
+yunohost service remove $app-node-socketio
+yunohost service remove $app-frappe-web
+yunohost service remove $app-frappe-schedule
+yunohost service remove $app-frappe-short-worker
+yunohost service remove $app-frappe-long-worker
+yunohost service remove $app-frappe-default-worker
+yunohost service remove $app-redis-queue
+yunohost service remove $app-redis-cache
 
 #=================================================
-# STOP AND REMOVE SERVICE
+# STOP AND REMOVE SERVICES
 #=================================================
-ynh_script_progression --message="Removing the supervisor config file..." --weight=1
+ynh_script_progression --message="Stopping and removing the systemd services..." --weight=2
 
 # Remove the dedicated supervisor config
-ynh_secure_remove --file="/etc/supervisor/conf.d/$app.conf"
+systemctl stop "$app.target" --quiet
+
+systemctl stop "$app-web.target" --quiet
+ynh_remove_systemd_config --service="$app-node-socketio"
+ynh_remove_systemd_config --service="$app-frappe-web"
+
+systemctl stop "$app-workers.target" --quiet
+ynh_remove_systemd_config --service="$app-frappe-schedule"
+ynh_remove_systemd_config --service="$app-frappe-short-worker"
+ynh_remove_systemd_config --service="$app-frappe-long-worker"
+
+systemctl stop "$app-redis.target" --quiet
+ynh_remove_systemd_config --service="$app-redis-queue"
+ynh_remove_systemd_config --service="$app-redis-cache"
+
+ynh_secure_remove --file="/etc/systemd/system/$app-redis.target"
+ynh_secure_remove --file="/etc/systemd/system/$app-web.target"
+ynh_secure_remove --file="/etc/systemd/system/$app-workers.target"
+ynh_secure_remove --file="/etc/systemd/system/$app.target"
+
+systemctl daemon-reload
 
 # REMOVE LOGROTATE CONFIGURATION
 #=================================================
@@ -47,7 +75,6 @@ ynh_script_progression --message="Removing logrotate configuration..." --weight=
 # Remove the app-specific logrotate config
 ynh_remove_logrotate
 
-
 #=================================================
 # REMOVE NGINX CONFIGURATION
 #=================================================
@@ -55,10 +82,6 @@ ynh_script_progression --message="Removing NGINX web server configuration..." --
 
 # Remove the dedicated NGINX config
 ynh_remove_nginx_config
-
-# Remove other various files specific to the app... such as :
-
-ynh_secure_remove --file="/var/log/$app"
 
 #=================================================
 # END OF SCRIPT

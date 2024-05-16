@@ -36,7 +36,6 @@ source /usr/share/yunohost/helpers
 #=================================================
 # RETRIEVE ARGUMENTS FROM THE MANIFEST
 #=================================================
-
 admin_pwd=$YNH_APP_ARG_PASSWORD
 site_name=$domain
 #python_version="$(python3 -V | cut -d' ' -f2 | cut -d. -f1-2)"
@@ -44,7 +43,6 @@ site_name=$domain
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
-
 ynh_script_progression --message="Installing NodeJS..." --weight=10
 
 # Install Nodejs
@@ -76,10 +74,9 @@ ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-
 ynh_script_progression --message="Installing $app CLI and setup $app folder and conf files..." --weight=30
 
-#mkdir -p $install_dir/dokos-bench-folder/apps/frappe # Without this folder, bench command display a warning that they don't run in a bench folder but if created now, it creates a python error https://github.com/frappe/frappe/issues/26346#issuecomment-2111085990
+#mkdir -p $install_dir/dokos-bench-folder/apps # Without this folder, first following bench command display a warning that they don't run in a bench folder but if created now, it creates a python error https://github.com/frappe/frappe/issues/26346#issuecomment-2111085990
 mkdir -p $install_dir/dokos-bench-folder/sites
 mkdir -p $install_dir/dokos-bench-folder/logs
 mkdir -p $install_dir/dokos-bench-folder/config/pids
@@ -142,14 +139,12 @@ ynh_add_nginx_config
 ynh_script_progression --message="Adding systemd configurations related to $app..."
 
 ### `ynh_systemd_config` is used to configure a systemd script for an app, using the conf/systemd.service template
-
 ynh_add_config --template="../conf/frappe-bench-redis.target" --destination="/etc/systemd/system/$app-redis.target"
 ynh_add_config --template="../conf/frappe-bench-web.target" --destination="/etc/systemd/system/$app-web.target"
 ynh_add_config --template="../conf/frappe-bench-workers.target" --destination="/etc/systemd/system/$app-workers.target"
 ynh_add_config --template="../conf/frappe-bench.target" --destination="/etc/systemd/system/$app.target"
 
 # Create a dedicated systemd config
-
 ynh_add_systemd_config --service="$app-redis-cache" --template="frappe-bench-redis-cache.service"
 ynh_add_systemd_config --service="$app-redis-queue" --template="frappe-bench-redis-queue.service"
 ynh_add_systemd_config --service="$app-frappe-default-worker" --template="frappe-bench-frappe-default-worker.service"
@@ -162,7 +157,6 @@ ynh_add_systemd_config --service="$app-node-socketio" --template="frappe-bench-n
 systemctl daemon-reload
 
 # Enable target systemd files
-
 systemctl enable "$app-redis.target" --quiet
 systemctl enable "$app-workers.target" --quiet
 systemctl enable "$app-web.target" --quiet
@@ -234,7 +228,7 @@ pushd $install_dir/dokos-bench-folder
     
 popd
 
-#N ow to make sure the environment is fully setup
+# Now to make sure the environment is fully setup
 chmod 755 "$install_dir"
 chown $app: -R $install_dir
 
@@ -250,11 +244,14 @@ ynh_systemd_action --service_name=nginx --action=reload
 #=================================================
 ynh_script_progression --message="Configuring log rotation..." --weight=1
 
-# Use logrotate to manage application logfile(s)
-yunohost service add $app --log="/var/log/$app/$app.log"
-
-ynh_use_logrotate --logfile="/var/log/$app/${app}.log"
-
+ynh_use_logrotate --logfile="$install_dir/dokos-bench-folder/logs/redis-cache.log"
+ynh_use_logrotate --logfile="$install_dir/dokos-bench-folder/logs/redis-queue.log"
+ynh_use_logrotate --logfile="$install_dir/dokos-bench-folder/logs/default-worker.log"
+ynh_use_logrotate --logfile="$install_dir/dokos-bench-folder/logs/long-worker.log"
+ynh_use_logrotate --logfile="$install_dir/dokos-bench-folder/logs/short-worker.log"
+ynh_use_logrotate --logfile="$install_dir/dokos-bench-folder/logs/schedule.log"
+ynh_use_logrotate --logfile="$install_dir/dokos-bench-folder/logs/web.log"
+ynh_use_logrotate --logfile="$install_dir/dokos-bench-folder/logs/node-socketio.log"
 
 #=================================================
 # APP INITIAL CONFIGURATION

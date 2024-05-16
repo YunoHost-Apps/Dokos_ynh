@@ -42,14 +42,22 @@ ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 #=================================================
 
 ynh_backup --src_path="/etc/logrotate.d/$app"
-
 #=================================================
-# BACKUP SUPERVISOR CONFIGURATION
+# BACKUP SYSTEMD CONFIGURATION
 #=================================================
 
-ynh_backup --src_path="/etc/supervisor/conf.d/${app}-horizon.conf"
-
-# ynh_backup --src_path="/etc/systemd/system/$app.service"
+ynh_backup --src_path="/etc/systemd/system/$app-redis.target"
+ynh_backup --src_path="/etc/systemd/system/$app-web.target"
+ynh_backup --src_path="/etc/systemd/system/$app-workers.target"
+ynh_backup --src_path="/etc/systemd/system/$app.target"
+ynh_backup --src_path="/etc/systemd/system/$app-redis-cache.service"
+ynh_backup --src_path="/etc/systemd/system/$app-redis-queue.service"
+ynh_backup --src_path="/etc/systemd/system/$app-frappe-default-worker.service"
+ynh_backup --src_path="/etc/systemd/system/$app-frappe-long-worker.service"
+ynh_backup --src_path="/etc/systemd/system/$app-frappe-short-worker.service"
+ynh_backup --src_path="/etc/systemd/system/$app-frappe-schedule.service"
+ynh_backup --src_path="/etc/systemd/system/$app-frappe-web.service"
+ynh_backup --src_path="/etc/systemd/system/$app-node-socketio.service"
 
 #=================================================
 # BACKUP THE DATABASE
@@ -58,6 +66,7 @@ ynh_print_info --message="Backing up the mysql database..."
 
 ### (However, things like MySQL dumps *do* take some time to run, though the
 ### copy of the generated dump to the archive still happens later)
+ynh_mysql_dump_db --database="$db_name" --default_character_set="utf8mb4" > db.sql
 
 #=================================================
 # END OF SCRIPT
