@@ -7,6 +7,6 @@ User=__APP__
 Group=__APP__
 Restart=always
 ExecStart=__INSTALL_DIR__/bin/bench worker --queue long
-StandardOutput=file:__INSTALL_DIR__/dokos-bench-folder/logs/worker.log
+StandardOutput=file:__INSTALL_DIR__/dokos-bench-folder/logs/long-worker.log
 StandardError=file:__INSTALL_DIR__/dokos-bench-folder/logs/worker.error.log
 WorkingDirectory=__INSTALL_DIR__/dokos-bench-folder
