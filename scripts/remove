@@ -43,28 +43,31 @@ yunohost service remove $app-redis-cache
 #=================================================
 # STOP AND REMOVE SERVICES
 #=================================================
-ynh_script_progression --message="Stopping and removing the systemd services..." --weight=2
+ynh_script_progression --message="Stopping and removing systemd services..." --weight=2
 
 # Remove the dedicated supervisor config
 systemctl stop "$app.target" --quiet
+systemctl disable "$app.target" --quiet
+ynh_secure_remove --file="/etc/systemd/system/$app.target"
 
 systemctl stop "$app-web.target" --quiet
+systemctl disable "$app-web.target" --quiet
+ynh_secure_remove --file="/etc/systemd/system/$app-web.target"
 ynh_remove_systemd_config --service="$app-node-socketio"
 ynh_remove_systemd_config --service="$app-frappe-web"
 
 systemctl stop "$app-workers.target" --quiet
+systemctl disable "$app-workers.target" --quiet
+ynh_secure_remove --file="/etc/systemd/system/$app-workers.target"
 ynh_remove_systemd_config --service="$app-frappe-schedule"
 ynh_remove_systemd_config --service="$app-frappe-short-worker"
 ynh_remove_systemd_config --service="$app-frappe-long-worker"
 
 systemctl stop "$app-redis.target" --quiet
+systemctl disable "$app-redis.target" --quiet
+ynh_secure_remove --file="/etc/systemd/system/$app-redis.target"
 ynh_remove_systemd_config --service="$app-redis-queue"
 ynh_remove_systemd_config --service="$app-redis-cache"
-
-ynh_secure_remove --file="/etc/systemd/system/$app-redis.target"
-ynh_secure_remove --file="/etc/systemd/system/$app-web.target"
-ynh_secure_remove --file="/etc/systemd/system/$app-workers.target"
-ynh_secure_remove --file="/etc/systemd/system/$app.target"
 
 systemctl daemon-reload
 

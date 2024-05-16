@@ -40,11 +40,14 @@ ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 #=================================================
 # BACKUP LOGROTATE
 #=================================================
+ynh_print_info --message="Backing up logrotate..."
 
 ynh_backup --src_path="/etc/logrotate.d/$app"
+
 #=================================================
 # BACKUP SYSTEMD CONFIGURATION
 #=================================================
+ynh_print_info --message="Backing up the systemd services conf files..."
 
 ynh_backup --src_path="/etc/systemd/system/$app-redis.target"
 ynh_backup --src_path="/etc/systemd/system/$app-web.target"
