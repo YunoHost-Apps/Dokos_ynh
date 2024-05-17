@@ -23,19 +23,6 @@ ynh_script_progression --message="Installing NodeJS..." --weight=10
 # Install Nodejs
 ynh_exec_warn_less ynh_install_nodejs --nodejs_version=$nodejs_version
 
-# Install yarn
-ynh_script_progression --message="Installing yarn..." --weight=5
-
-ynh_npm install --global yarn
-
-pushd $install_dir
-    ynh_use_nodejs
-    ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn install --network-timeout=100000
-popd
-
-# Install virtualenv if it doesn't exist
-python3 -m venv $install_dir
-
 #=================================================
 # RESTORE THE MYSQL DATABASE
 #=================================================
