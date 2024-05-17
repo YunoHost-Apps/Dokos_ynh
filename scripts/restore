@@ -104,18 +104,20 @@ yunohost service add "$app-node-socketio" --description="$app node socketio serv
 #=================================================
 ynh_script_progression --message="Starting systemd services..." --weight=1
 
-ynh_systemd_action --service_name=$app-redis-cache --action="start" --log_path="$install_dir/dokos-bench-folder/logs/redis-cache.log" --line_match="Ready to accept connections"
-ynh_systemd_action --service_name=$app-redis-queue --action="start" --log_path="$install_dir/dokos-bench-folder/logs/redis-queue.log" --line_match="Ready to accept connections"
+# For some reason --line_match makes starting of services very long during restore (compare to install script). Needs to be investigated later.
+
+ynh_systemd_action --service_name=$app-redis-cache --action="start" --log_path="$install_dir/dokos-bench-folder/logs/redis-cache.log" # --line_match="Ready to accept connections"
+ynh_systemd_action --service_name=$app-redis-queue --action="start" --log_path="$install_dir/dokos-bench-folder/logs/redis-queue.log" # --line_match="Ready to accept connections"
 systemctl start "$app-redis.target" --quiet
 
-ynh_systemd_action --service_name=$app-frappe-default-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/default-worker.log" --line_match="Listening on var-www-dokos-dokos-bench-folder:default"
-ynh_systemd_action --service_name=$app-frappe-long-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/long-worker.log" --line_match="Listening on var-www-dokos-dokos-bench-folder:long"
-ynh_systemd_action --service_name=$app-frappe-short-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/short-worker.log" --line_match="Listening on var-www-dokos-dokos-bench-folder:short"
+ynh_systemd_action --service_name=$app-frappe-default-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/default-worker.log" # --line_match="Listening on var-www-dokos-dokos-bench-folder:default"
+ynh_systemd_action --service_name=$app-frappe-long-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/long-worker.log" # --line_match="Listening on var-www-dokos-dokos-bench-folder:long"
+ynh_systemd_action --service_name=$app-frappe-short-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/short-worker.log" # --line_match="Listening on var-www-dokos-dokos-bench-folder:short"
 ynh_systemd_action --service_name=$app-frappe-schedule --action="start" --log_path="systemd" --line_match="Started dokos-frappe-schedule.service - "
 systemctl start "$app-workers.target" --quiet
 
 ynh_systemd_action --service_name=$app-frappe-web --action="start" --log_path="systemd" --line_match="Started dokos-frappe-web.service - "
-ynh_systemd_action --service_name=$app-node-socketio --action="start" --log_path="$install_dir/dokos-bench-folder/logs/node-socketio.log" --line_match="Realtime service listening on"
+ynh_systemd_action --service_name=$app-node-socketio --action="start" --log_path="$install_dir/dokos-bench-folder/logs/node-socketio.log" # --line_match="Realtime service listening on"
 systemctl start "$app-web.target" --quiet
 
 systemctl start "$app.target" --quiet
