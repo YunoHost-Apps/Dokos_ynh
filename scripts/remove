@@ -31,14 +31,46 @@ source /usr/share/yunohost/helpers
 #=================================================
 
 # Remove the service from the list of services known by YunoHost (added from `yunohost service add`)
+yunohost service remove $app-node-socketio
+yunohost service remove $app-frappe-web
+yunohost service remove $app-frappe-schedule
+yunohost service remove $app-frappe-short-worker
+yunohost service remove $app-frappe-long-worker
+yunohost service remove $app-frappe-default-worker
+yunohost service remove $app-redis-queue
+yunohost service remove $app-redis-cache
 
 #=================================================
-# STOP AND REMOVE SERVICE
+# STOP AND REMOVE SERVICES
 #=================================================
-ynh_script_progression --message="Removing the supervisor config file..." --weight=1
+ynh_script_progression --message="Stopping and removing systemd services..." --weight=2
 
 # Remove the dedicated supervisor config
-ynh_secure_remove --file="/etc/supervisor/conf.d/$app.conf"
+systemctl stop "$app.target" --quiet
+systemctl disable "$app.target" --quiet
+ynh_secure_remove --file="/etc/systemd/system/$app.target"
+
+systemctl stop "$app-web.target" --quiet
+systemctl disable "$app-web.target" --quiet
+ynh_secure_remove --file="/etc/systemd/system/$app-web.target"
+ynh_remove_systemd_config --service="$app-node-socketio"
+ynh_remove_systemd_config --service="$app-frappe-web"
+
+systemctl stop "$app-workers.target" --quiet
+systemctl disable "$app-workers.target" --quiet
+ynh_secure_remove --file="/etc/systemd/system/$app-workers.target"
+ynh_remove_systemd_config --service="$app-frappe-schedule"
+ynh_remove_systemd_config --service="$app-frappe-short-worker"
+ynh_remove_systemd_config --service="$app-frappe-long-worker"
+ynh_remove_systemd_config --service="$app-frappe-default-worker"
+
+systemctl stop "$app-redis.target" --quiet
+systemctl disable "$app-redis.target" --quiet
+ynh_secure_remove --file="/etc/systemd/system/$app-redis.target"
+ynh_remove_systemd_config --service="$app-redis-queue"
+ynh_remove_systemd_config --service="$app-redis-cache"
+
+systemctl daemon-reload
 
 # REMOVE LOGROTATE CONFIGURATION
 #=================================================
@@ -46,7 +78,6 @@ ynh_script_progression --message="Removing logrotate configuration..." --weight=
 
 # Remove the app-specific logrotate config
 ynh_remove_logrotate
-
 
 #=================================================
 # REMOVE NGINX CONFIGURATION
@@ -56,9 +87,13 @@ ynh_script_progression --message="Removing NGINX web server configuration..." --
 # Remove the dedicated NGINX config
 ynh_remove_nginx_config
 
-# Remove other various files specific to the app... such as :
+#=================================================
+# REMOVE DEPENDENCIES
+#=================================================
+ynh_script_progression --message="Removing dependencies..." --weight=10
 
-ynh_secure_remove --file="/var/log/$app"
+# Remove metapackage and its dependencies
+ynh_remove_nodejs
 
 #=================================================
 # END OF SCRIPT
