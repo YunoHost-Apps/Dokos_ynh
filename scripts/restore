@@ -16,6 +16,34 @@ source /usr/share/yunohost/helpers
 source ../settings/scripts/_ynh_mysql_connect_as.sh
 
 #=================================================
+# INSTALL DEPENDENCIES
+#=================================================
+ynh_script_progression --message="Installing NodeJS..." --weight=10
+
+# Install Nodejs
+ynh_exec_warn_less ynh_install_nodejs --nodejs_version=$nodejs_version
+
+# Install yarn
+ynh_script_progression --message="Installing yarn..." --weight=5
+
+ynh_npm install --global yarn
+
+pushd $install_dir
+    ynh_use_nodejs
+    ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn install --network-timeout=100000
+popd
+
+# Install virtualenv if it doesn't exist
+python3 -m venv $install_dir
+
+#=================================================
+# RESTORE THE MYSQL DATABASE
+#=================================================
+ynh_script_progression --message="Restoring the MySQL database..." --weight=9
+
+ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name --default_character_set="utf8mb4" < ./db.sql
+
+#=================================================
 # RESTORE THE APP MAIN DIR
 #=================================================
 ynh_script_progression --message="Restoring the app main directory..." --weight=1
@@ -39,11 +67,6 @@ ynh_restore_file --origin_path="$data_dir" --not_mandatory
 chown -R $app: "$data_dir"
 
 #=================================================
-# RESTORE SYSTEM CONFIGURATIONS
-#=================================================
-ynh_script_progression --message="Restoring system configurations related to $app..." --weight=1
-
-#=================================================
 # RESTORE THE NGINX CONFIGURATION
 #=================================================
 ynh_script_progression --message="Restoring the NGINX web server configuration..." --weight=1
@@ -51,14 +74,7 @@ ynh_script_progression --message="Restoring the NGINX web server configuration..
 ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 
 #=================================================
-# RESTORE THE MYSQL DATABASE
-#=================================================
-ynh_script_progression --message="Restoring the MySQL database..." --weight=9
-
-ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name --default_character_set="utf8mb4" < ./db.sql
-
-#=================================================
-# RESTORE SUPERVISOR CONFIGURATION
+# RESTORE SYSTEMD CONFIGURATIONS
 #=================================================
 ynh_script_progression --message="Enable systemd services" --weight=2
 
@@ -82,13 +98,6 @@ systemctl enable "$app-redis.target" --quiet
 systemctl enable "$app-workers.target" --quiet
 systemctl enable "$app-web.target" --quiet
 systemctl enable "$app.target" --quiet
-
-#=================================================
-# RESTORE THE LOGROTATE CONFIGURATION
-#=================================================
-ynh_script_progression --message="Restoring the logrotate configuration..." --weight=1
-
-ynh_restore_file --origin_path="/etc/logrotate.d/$app"
 
 #=================================================
 # INTEGRATE SERVICE IN YUNOHOST
@@ -155,6 +164,13 @@ chown $app: -R $install_dir
 ynh_script_progression --message="Reloading NGINX web server..." --weight=1
 
 ynh_systemd_action --service_name=nginx --action=reload
+
+#=================================================
+# RESTORE THE LOGROTATE CONFIGURATION
+#=================================================
+ynh_script_progression --message="Restoring the logrotate configuration..." --weight=1
+
+ynh_restore_file --origin_path="/etc/logrotate.d/$app"
 
 #=================================================
 # END OF SCRIPT
