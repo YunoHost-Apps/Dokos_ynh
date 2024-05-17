@@ -61,21 +61,66 @@ upgrade_type=$(ynh_check_app_version_changed)
 #fi
 
 #=================================================
-# STOP SUPERVISOR SERVICE
+# SCHEDULER
 #=================================================
-ynh_script_progression --message="Stopping a supervisor service..." --weight=1
 
-ynh_supervisor_action --service_name="${app}-horizon" --action="stop" --log_path="systemd" --line_match="stopped: ${app}-horizon"
+# Pause and disable the scheduler for the site
+ynh_script_progression --message="Disabling Scheduler..." --weight=1
+
+pushd $install_dir/dokos-bench-folder
+	# Activate maintenance mode.
+	ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench set-maintenance-mode on
+
+    ynh_use_nodejs
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain scheduler pause && \
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain scheduler disable && \
+popd
 
 #=================================================
 # STOP SYSTEMD SERVICE
 #=================================================
 #ynh_script_progression --message="Stopping a systemd service..."
 
-#ynh_systemd_action --service_name=$app --action="stop" --log_path="/var/log/$app/$app.log"
+ynh_systemd_action --service_name=$app --action="stop" --log_path="/var/log/$app/$app.log"
+
+systemctl stop "$app.target" --quiet
+systemctl stop "$app-web.target" --quiet
+ynh_systemd_action --service_name="$app-node-socketio" --action="stop" --log_path="$install_dir/dokos-bench-folder/logs/node-socketio.log"
+ynh_systemd_action --service_name="$app-frappe-web" --action="stop" --log_path="$install_dir/dokos-bench-folder/logs/web.log"
+
+systemctl stop "$app-workers.target" --quiet
+ynh_systemd_action --service_name="$app-frappe-schedule" --action="stop" --log_path="$install_dir/dokos-bench-folder/logs/schedule.log"
+ynh_systemd_action --service_name="$app-frappe-short-worker" --action="stop" --log_path="$install_dir/dokos-bench-folder/logs/short-worker.log"
+ynh_systemd_action --service_name="$app-frappe-long-worker" --action="stop" --log_path="$install_dir/dokos-bench-folder/logs/long-worker.log"
+ynh_systemd_action --service_name="$app-frappe-default-worker" --action="stop" --log_path="$install_dir/dokos-bench-folder/logs/default-worker.log"
+
+systemctl stop "$app-redis.target" --quiet
+ynh_systemd_action --service_name="$app-redis-queue" --action="stop" --log_path="$install_dir/dokos-bench-folder/logs/redis-queue.log"
+ynh_systemd_action --service_name="$app-redis-cache" --action="stop" --log_path="$install_dir/dokos-bench-folder/logs/redis-cache.log"
 
 #=================================================
 # "REBUILD" THE APP (DEPLOY NEW SOURCES, RERUN NPM BUILD...)
+#=================================================
+# INSTALL DEPENDENCIES
+#=================================================
+ynh_script_progression --message="Updating NodeJS..." --weight=10
+
+# Update Nodejs
+ynh_exec_warn_less ynh_install_nodejs --nodejs_version=$nodejs_version
+
+# Update yarn
+ynh_script_progression --message="Installing yarn..." --weight=5
+
+ynh_npm install --global yarn
+
+pushd $install_dir
+    ynh_use_nodejs
+    ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn install --network-timeout=100000
+popd
+
+# Install virtualenv if it doesn't exist
+python3 -m venv $install_dir
+
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
@@ -84,22 +129,52 @@ if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
 	ynh_script_progression --message="Upgrading source files..."
 
-	# Download, check integrity, uncompress and patch the source from app.src
-	ynh_setup_source --dest_dir="$install_dir"
+	pushd $install_dir/dokos-bench-folder
+		# Update Docli.
+		ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench update --bench
+		# Update Python's and nodejs's dependances in the virtual environment for your bench.
+		ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench update --requirements
+		# Generate or over-write sites/common_site_config.json
+		ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup config
+		# Generates configuration for Redis
+		ynh_add_config --template="../conf/redis_queue.conf" --destination="$install_dir/dokos-bench-folder/config/redis_queue.conf"
+		ynh_add_config --template="../conf/redis_cache.conf" --destination="$install_dir/dokos-bench-folder/config/redis_cache.conf"
+		# Generate Procfile for bench start
+		ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup procfile
+		# Setup node dependencies for socketio server
+		ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup socketio
+	popd
+
+	ynh_script_progression --message="Installing Dodock (frappe), it can take quiet some time..." --weight=30
+
+	upgrade_app_to_bench frappe
+
+	ynh_script_progression --message="Installing $app..." --weight=30
+
+	upgrade_app_to_bench erpnext
+
+	ynh_script_progression --message="Installing $app applications payments..." --weight=30
+
+	upgrade_app_to_bench payments
+
+	ynh_script_progression --message="Installing $app applications hrms..." --weight=30
+
+	upgrade_app_to_bench hrms
+
+	pushd $install_dir/dokos-bench-folder
+		# reBuild JS and CSS necessary files for user interface
+		ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench update --build
+		# Patches and migrations for the database.
+		ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench update --patch
+	popd
 fi
 
 # $install_dir will automatically be initialized with some decent
 # permission by default ... however, you may need to recursively reapply
 # ownership to all files such as after the ynh_setup_source step
 
-chown -R $app:www-data "$install_dir"
-
-#=================================================
-# REAPPLY SYSTEM CONFIGURATIONS
-#=================================================
-ynh_script_progression --message="Upgrading system configurations related to $app..."
-
-# This should be a literal copypasta of what happened in the install's "System configuration" section
+chmod 755 "$install_dir"
+chown -R $app: "$install_dir"
 
 #=================================================
 # NGINX CONFIGURATION
@@ -109,22 +184,97 @@ ynh_script_progression --message="Upgrading NGINX web server configuration..." -
 # Create a dedicated NGINX config
 ynh_add_nginx_config
 
-#ynh_add_systemd_config
+#=================================================
+# SYSTEMD CONFIGURATION
+#=================================================
+ynh_script_progression --message="Adding systemd configurations related to $app..."
+
+### `ynh_systemd_config` is used to configure a systemd script for an app, using the conf/systemd.service template
+ynh_add_config --template="../conf/frappe-bench-redis.target" --destination="/etc/systemd/system/$app-redis.target"
+ynh_add_config --template="../conf/frappe-bench-web.target" --destination="/etc/systemd/system/$app-web.target"
+ynh_add_config --template="../conf/frappe-bench-workers.target" --destination="/etc/systemd/system/$app-workers.target"
+ynh_add_config --template="../conf/frappe-bench.target" --destination="/etc/systemd/system/$app.target"
+
+# Create a dedicated systemd config
+ynh_add_systemd_config --service="$app-redis-cache" --template="frappe-bench-redis-cache.service"
+ynh_add_systemd_config --service="$app-redis-queue" --template="frappe-bench-redis-queue.service"
+ynh_add_systemd_config --service="$app-frappe-default-worker" --template="frappe-bench-frappe-default-worker.service"
+ynh_add_systemd_config --service="$app-frappe-long-worker" --template="frappe-bench-frappe-long-worker.service"
+ynh_add_systemd_config --service="$app-frappe-short-worker" --template="frappe-bench-frappe-short-worker.service"
+ynh_add_systemd_config --service="$app-frappe-schedule" --template="frappe-bench-frappe-schedule.service"
+ynh_add_systemd_config --service="$app-frappe-web" --template="frappe-bench-frappe-web.service"
+ynh_add_systemd_config --service="$app-node-socketio" --template="frappe-bench-node-socketio.service"
+
+systemctl daemon-reload
+
+# Enable target systemd files
+systemctl enable "$app-redis.target" --quiet
+systemctl enable "$app-workers.target" --quiet
+systemctl enable "$app-web.target" --quiet
+systemctl enable "$app.target" --quiet
 
 #=================================================
-# CREATE LOG FILE
+# RESTART SYSTEMD SERVICES
 #=================================================
-ynh_script_progression --message="Creating log file..." --weight=1
+ynh_script_progression --message="Starting systemd services..." --weight=1
 
-yunohost service add $app --log="/var/log/$app/$app.log"
+ynh_systemd_action --service_name=$app-redis-cache --action="restart" --log_path="$install_dir/dokos-bench-folder/logs/redis-cache.log" # --line_match="Ready to accept connections"
+ynh_systemd_action --service_name=$app-redis-queue --action="restart" --log_path="$install_dir/dokos-bench-folder/logs/redis-queue.log" # --line_match="Ready to accept connections"
+systemctl restart "$app-redis.target" --quiet
+
+ynh_systemd_action --service_name=$app-frappe-default-worker --action="restart" --log_path="$install_dir/dokos-bench-folder/logs/default-worker.log" # --line_match="Listening on var-www-dokos-dokos-bench-folder:default"
+ynh_systemd_action --service_name=$app-frappe-long-worker --action="restart" --log_path="$install_dir/dokos-bench-folder/logs/long-worker.log" # --line_match="Listening on var-www-dokos-dokos-bench-folder:long"
+ynh_systemd_action --service_name=$app-frappe-short-worker --action="restart" --log_path="$install_dir/dokos-bench-folder/logs/short-worker.log" # --line_match="Listening on var-www-dokos-dokos-bench-folder:short"
+ynh_systemd_action --service_name=$app-frappe-schedule --action="restart" --log_path="systemd" --line_match="Started dokos-frappe-schedule.service - "
+systemctl restart "$app-workers.target" --quiet
+
+ynh_systemd_action --service_name=$app-frappe-web --action="restart" --log_path="systemd" --line_match="Started dokos-frappe-web.service - "
+ynh_systemd_action --service_name=$app-node-socketio --action="restart" --log_path="$install_dir/dokos-bench-folder/logs/node-socketio.log" # --line_match="Realtime service listening on"
+systemctl restart "$app-web.target" --quiet
+
+systemctl restart "$app.target" --quiet
 
 #=================================================
-# SETUP SUPERVISOR
+# RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Upgrading supervisor configuration..." --weight=1
+ynh_script_progression --message="Reloading NGINX web server..." --weight=1
 
-# Create a dedicated supervisor config
-ynh_add_supervisor_config --service="${app}-horizon" --template=horizon.conf
+ynh_systemd_action --service_name=nginx --action=reload
+
+#=================================================
+# SCHEDULER
+#=================================================
+
+# Enable and resume the scheduler for the site
+ynh_script_progression --message="Enabling Scheduler..." --weight=1
+
+pushd $install_dir/dokos-bench-folder
+    ynh_use_nodejs
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain scheduler enable && \
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain scheduler resume && \
+
+    ynh_script_progression --message="Adding apps Payments, Dokos and Hrms to your website."
+
+    # Install Frappe applications on your site through the Bench CLI. Applications must be installed on your bench prior to that.
+    # In this operation, applications meta, modules and doctypes of the specified site are installed on the specified site.
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain install-app payments
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain install-app dokos
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain install-app hrms
+
+	# Deactivate maintenance mode.
+	ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench set-maintenance-mode off    
+popd
+
+# Now to make sure the environment is fully setup
+chmod 755 "$install_dir"
+chown -R $app: "$install_dir"
+
+#=================================================
+# RELOAD NGINX
+#=================================================
+ynh_script_progression --message="Reloading NGINX web server..." --weight=1
+
+ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================
 # SETUP LOGROTATE
@@ -133,55 +283,6 @@ ynh_script_progression --message="Upgrading logrotate configuration..." --weight
 
 # Use logrotate to manage app-specific logfile(s)
 ynh_use_logrotate --non-append
-
-#=================================================
-# RECONFIGURE THE APP (UPDATE CONF, APPLY MIGRATIONS...)
-#=================================================
-# UPDATE A CONFIG FILE
-#=================================================
-ynh_script_progression --message="Updating a configuration file..."
-
-### Same as during install
-###
-### The file will automatically be backed-up if it's found to be manually modified (because
-### ynh_add_config keeps track of the file's checksum)
-
-ynh_add_config --template="site_config.json" --destination="$install_dir/site_config.json"
-
-# FIXME: this should be handled by the core in the future
-# You may need to use chmod 600 instead of 400,
-# for example if the app is expected to be able to modify its own config
-
-chmod 400 "$install_dir/some_config_file"
-chown $app:$app "$install_dir/some_config_file"
-
-### For more complex cases where you want to replace stuff using regexes,
-### you shoud rely on ynh_replace_string (which is basically a wrapper for sed)
-### When doing so, you also need to manually call ynh_store_file_checksum
-###
-### ynh_replace_string --match_string="match_string" --replace_string="replace_string" --target_file="$install_dir/some_config_file"
-### ynh_store_file_checksum --file="$install_dir/some_config_file"
-
-#=================================================
-# INTEGRATE SERVICE IN YUNOHOST
-#=================================================
-ynh_script_progression --message="Integrating service in YunoHost..." --weight=1
-
-yunohost service add "supervisor" --description="Supervisor daemon for $app" --log="/var/log/$app/${app}-horizon.log"
-
-#=================================================
-# START SUPERVISOR SERVICE
-#=================================================
-ynh_script_progression --message="Starting a supervisor service..." --weight=1
-
-ynh_supervisor_action --service_name="${app}-horizon" --action="start" --log_path="systemd" --line_match="success: ${app}-horizon"
-
-#=================================================
-# START SYSTEMD SERVICE
-#=================================================
-#ynh_script_progression --message="Starting a systemd service..."
-
-#ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log"
 
 #=================================================
 # END OF SCRIPT
