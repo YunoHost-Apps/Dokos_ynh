@@ -136,8 +136,8 @@ then
 	ynh_exec_as $app $install_dir/bin/python -m pip install --upgrade dokos-cli
 
 	pushd $install_dir/dokos-bench-folder
-		# Update Python's and nodejs's dependances in the virtual environment for your bench.
-		ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench update --requirements
+    	# Setup Python's virtual environment for your bench. This sets up a env folder under the root of the bench directory.
+    	ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup env
 		# Generate or over-write sites/common_site_config.json
 		ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup config
 		# Generates configuration for Redis

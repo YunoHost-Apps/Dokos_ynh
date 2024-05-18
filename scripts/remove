@@ -41,11 +41,11 @@ yunohost service remove $app-redis-queue
 yunohost service remove $app-redis-cache
 
 #=================================================
-# STOP AND REMOVE SERVICES
+# STOP AND REMOVE SYSTEMD SERVICES
 #=================================================
 ynh_script_progression --message="Stopping and removing systemd services..." --weight=2
 
-# Remove the dedicated supervisor config
+# Remove the dedicated systemd config
 systemctl stop "$app.target" --quiet
 systemctl disable "$app.target" --quiet
 ynh_secure_remove --file="/etc/systemd/system/$app.target"
