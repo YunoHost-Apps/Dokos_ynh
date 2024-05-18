@@ -68,22 +68,24 @@ upgrade_type=$(ynh_check_app_version_changed)
 # SCHEDULER
 #=================================================
 
-# Pause and disable the scheduler for the site
-ynh_script_progression --message="Disabling Scheduler..." --weight=1
-
 pushd $install_dir/dokos-bench-folder
+    ynh_script_progression --message="Activate maintenance mode."
+
 	# Activate maintenance mode.
 	ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain set-maintenance-mode on
 
+	ynh_script_progression --message="Disabling Scheduler..." --weight=1
+
+	# Pause and disable the scheduler for the site
     ynh_use_nodejs
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain scheduler pause && \
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain scheduler disable && \
 popd
 
 #=================================================
-# STOP SYSTEMD SERVICE
+# STOP SYSTEMD SERVICES
 #=================================================
-#ynh_script_progression --message="Stopping a systemd service..."
+ynh_script_progression --message="Stopping systemd services..."
 
 ynh_systemd_action --service_name=$app --action="stop" --log_path="/var/log/$app/$app.log"
 
@@ -164,13 +166,6 @@ then
 	ynh_script_progression --message="Installing $app applications hrms..." --weight=30
 
 	upgrade_app_to_bench hrms
-
-	pushd $install_dir/dokos-bench-folder
-		# reBuild JS and CSS necessary files for user interface
-		ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench update --build
-		# Patches and migrations for the database.
-		ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench update --patch
-	popd
 fi
 
 # $install_dir will automatically be initialized with some decent
@@ -248,22 +243,21 @@ ynh_systemd_action --service_name=nginx --action=reload
 #=================================================
 # SCHEDULER
 #=================================================
-
-# Enable and resume the scheduler for the site
-ynh_script_progression --message="Enabling Scheduler..." --weight=1
-
 pushd $install_dir/dokos-bench-folder
+	ynh_script_progression --message="Enabling Scheduler..." --weight=1
+
+	# Enable and resume the scheduler for the site
     ynh_use_nodejs
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain scheduler enable && \
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain scheduler resume && \
 
-    ynh_script_progression --message="Adding apps Payments, Dokos and Hrms to your website."
+    ynh_script_progression --message="Upgrade website."
 
-    # Install Frappe applications on your site through the Bench CLI. Applications must be installed on your bench prior to that.
-    # In this operation, applications meta, modules and doctypes of the specified site are installed on the specified site.
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain install-app payments
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain install-app dokos
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain install-app hrms
+    # Updates the site's state to the current available apps : Run Application Patches, Synchronize Database Schema and Background Jobs,
+    # Synchronize Fixtures, Synchronize Dashboards, Desktop Icons and Web Pages, Updates Translations, Rebuild Search Index for all routes
+	ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain migrate
+
+    ynh_script_progression --message="Deactivate maintenance mode."
 
 	# Deactivate maintenance mode.
 	ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain set-maintenance-mode off    
