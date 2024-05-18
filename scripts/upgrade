@@ -41,10 +41,10 @@ upgrade_type=$(ynh_check_app_version_changed)
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
-ynh_script_progression --message="Ensuring downward compatibility..."
+#ynh_script_progression --message="Ensuring downward compatibility..."
 
 # Remove the option backup_core_only if it's in the settings.yml file
-ynh_app_setting_delete --app=$app --key=backup_core_only
+#ynh_app_setting_delete --app=$app --key=backup_core_only
 
 #
 # N.B. : the followings setting migrations snippets are provided as *EXAMPLES*
@@ -73,7 +73,7 @@ ynh_script_progression --message="Disabling Scheduler..." --weight=1
 
 pushd $install_dir/dokos-bench-folder
 	# Activate maintenance mode.
-	ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench set-maintenance-mode on
+	ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain set-maintenance-mode on
 
     ynh_use_nodejs
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain scheduler pause && \
@@ -266,7 +266,7 @@ pushd $install_dir/dokos-bench-folder
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain install-app hrms
 
 	# Deactivate maintenance mode.
-	ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench set-maintenance-mode off    
+	ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain set-maintenance-mode off    
 popd
 
 # Now to make sure the environment is fully setup
