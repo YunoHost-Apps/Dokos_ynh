@@ -3,6 +3,7 @@
 # This is the tutorial version of the app.
 # It contains extra commands to explain what should be done in case you want to adjust some part of the script.
 # Once you are done, you may remove them.
+# sudo yunohost app upgrade dokos -u https://github.com/Thatoo/Dokos_ynh/tree/init_dev_upgrade --debug
 
 #=================================================
 # GENERIC START
