@@ -62,7 +62,7 @@ python3 -m venv $install_dir
 #=================================================
 # Update MYSQL database to utf8
 #=================================================
-ynh_script_progression --message="Updating the MySQL database with utf8..." --weight=2
+ynh_script_progression --message="Updating the MySQL database with utf8..." --weight=1
 
 ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
     <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
@@ -72,7 +72,7 @@ ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-ynh_script_progression --message="Installing $app CLI and setup $app folder and conf files..." --weight=30
+ynh_script_progression --message="Installing $app CLI and setup $app folder and conf files..." --weight=10
 
 #mkdir -p $install_dir/dokos-bench-folder/apps # Without this folder, first following bench command display a warning that they don't run in a bench folder but if created now, it creates a python error https://github.com/frappe/frappe/issues/26346#issuecomment-2111085990
 mkdir -p $install_dir/dokos-bench-folder/sites
@@ -133,7 +133,7 @@ ynh_add_nginx_config
 #=================================================
 # SYSTEMD CONFIGURATION
 #=================================================
-ynh_script_progression --message="Adding systemd configurations related to $app..."
+ynh_script_progression --message="Adding systemd configurations related to $app..." --weight=2
 
 ### `ynh_systemd_config` is used to configure a systemd script for an app, using the conf/systemd.service template
 ynh_add_config --template="../conf/frappe-bench-redis.target" --destination="/etc/systemd/system/$app-redis.target"
@@ -178,7 +178,7 @@ yunohost service add "$app-node-socketio" --description="$app node socketio serv
 #=================================================
 # START SYSTEMD SERVICES
 #=================================================
-ynh_script_progression --message="Starting systemd services..." --weight=1
+ynh_script_progression --message="Starting systemd services..." --weight=5
 
 ynh_systemd_action --service_name=$app-redis-cache --action="start" --log_path="$install_dir/dokos-bench-folder/logs/redis-cache.log" --line_match="Ready to accept connections"
 ynh_systemd_action --service_name=$app-redis-queue --action="start" --log_path="$install_dir/dokos-bench-folder/logs/redis-queue.log" --line_match="Ready to accept connections"
@@ -214,7 +214,7 @@ pushd $install_dir/dokos-bench-folder
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain scheduler enable && \
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain scheduler resume && \
 
-    ynh_script_progression --message="Adding apps Payments, Dokos and Hrms to your website."
+    ynh_script_progression --message="Adding apps Payments, Dokos and Hrms to your website." --weight=1
 
     # Install Frappe applications on your site through the Bench CLI. Applications must be installed on your bench prior to that.
     # In this operation, applications meta, modules and doctypes of the specified site are installed on the specified site.

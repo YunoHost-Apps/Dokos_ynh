@@ -41,7 +41,7 @@ upgrade_type=$(ynh_check_app_version_changed)
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
-#ynh_script_progression --message="Ensuring downward compatibility..."
+#ynh_script_progression --message="Ensuring downward compatibility..." --weight=1
 
 # Remove the option backup_core_only if it's in the settings.yml file
 #ynh_app_setting_delete --app=$app --key=backup_core_only
@@ -69,7 +69,7 @@ upgrade_type=$(ynh_check_app_version_changed)
 #=================================================
 
 pushd $install_dir/dokos-bench-folder
-    ynh_script_progression --message="Activate maintenance mode."
+    ynh_script_progression --message="Activate maintenance mode." --weight=1
 
 	# Activate maintenance mode.
 	ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain set-maintenance-mode on
@@ -85,7 +85,7 @@ popd
 #=================================================
 # STOP SYSTEMD SERVICES
 #=================================================
-ynh_script_progression --message="Stopping systemd services..."
+ynh_script_progression --message="Stopping systemd services..." --weight=1
 
 ynh_systemd_action --service_name=$app --action="stop" --log_path="/var/log/$app/$app.log"
 
@@ -133,7 +133,7 @@ python3 -m venv $install_dir
 
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
-	ynh_script_progression --message="Upgrading source files..."
+	ynh_script_progression --message="Upgrading source files..." --weight=10
 
 	ynh_exec_as $app $install_dir/bin/python -m pip install --upgrade dokos-cli
 
@@ -186,7 +186,7 @@ ynh_add_nginx_config
 #=================================================
 # SYSTEMD CONFIGURATION
 #=================================================
-ynh_script_progression --message="Adding systemd configurations related to $app..."
+ynh_script_progression --message="Adding systemd configurations related to $app..." --weight=2
 
 ### `ynh_systemd_config` is used to configure a systemd script for an app, using the conf/systemd.service template
 ynh_add_config --template="../conf/frappe-bench-redis.target" --destination="/etc/systemd/system/$app-redis.target"
@@ -215,7 +215,7 @@ systemctl enable "$app.target" --quiet
 #=================================================
 # RESTART SYSTEMD SERVICES
 #=================================================
-ynh_script_progression --message="Starting systemd services..." --weight=1
+ynh_script_progression --message="Starting systemd services..." --weight=5
 
 ynh_systemd_action --service_name=$app-redis-cache --action="restart" --log_path="$install_dir/dokos-bench-folder/logs/redis-cache.log" # --line_match="Ready to accept connections"
 ynh_systemd_action --service_name=$app-redis-queue --action="restart" --log_path="$install_dir/dokos-bench-folder/logs/redis-queue.log" # --line_match="Ready to accept connections"
@@ -251,13 +251,13 @@ pushd $install_dir/dokos-bench-folder
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain scheduler enable && \
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain scheduler resume && \
 
-    ynh_script_progression --message="Upgrade website."
+    ynh_script_progression --message="Upgrade website." --weight=1
 
     # Updates the site's state to the current available apps : Run Application Patches, Synchronize Database Schema and Background Jobs,
     # Synchronize Fixtures, Synchronize Dashboards, Desktop Icons and Web Pages, Updates Translations, Rebuild Search Index for all routes
 	ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain migrate
 
-    ynh_script_progression --message="Deactivate maintenance mode."
+    ynh_script_progression --message="Deactivate maintenance mode." --weight=1
 
 	# Deactivate maintenance mode.
 	ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench --site $domain set-maintenance-mode off    
