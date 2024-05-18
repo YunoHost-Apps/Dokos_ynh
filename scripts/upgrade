@@ -41,7 +41,10 @@ upgrade_type=$(ynh_check_app_version_changed)
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
-#ynh_script_progression --message="Ensuring downward compatibility..."
+ynh_script_progression --message="Ensuring downward compatibility..."
+
+# Remove the option backup_core_only if it's in the settings.yml file
+ynh_app_setting_delete --app=$app --key=backup_core_only
 
 #
 # N.B. : the followings setting migrations snippets are provided as *EXAMPLES*
