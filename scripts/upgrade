@@ -146,6 +146,7 @@ then
 		ynh_add_config --template="../conf/redis_queue.conf" --destination="$install_dir/dokos-bench-folder/config/redis_queue.conf"
 		ynh_add_config --template="../conf/redis_cache.conf" --destination="$install_dir/dokos-bench-folder/config/redis_cache.conf"
 		# Generate Procfile for bench start
+		ynh_secure_remove --file="$install_dir/dokos-bench-folder/Procfile"
 		ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup procfile
 		# Setup node dependencies for socketio server
 		ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup socketio
