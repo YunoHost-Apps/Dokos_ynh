@@ -6,7 +6,7 @@ name = "Dokos"
 description.en = "Dokos is a 100% open-source management software that is based on ERPNext"
 description.fr = "Dokos est une plateforme de gestion d'entreprise complète, 100% open-source, basée sur ERPNext"
 
-version = "4.2.0~ynh1"
+version = "4.3.0~ynh1"
 
 maintainers = ["Thatoo"]
 
