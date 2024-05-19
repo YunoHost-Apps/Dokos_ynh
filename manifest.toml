@@ -6,7 +6,7 @@ name = "Dokos"
 description.en = "Dokos is a 100% open-source management software that is based on ERPNext"
 description.fr = "Dokos est une plateforme de gestion d'entreprise complète, 100% open-source, basée sur ERPNext"
 
-version = "4.1.0~ynh1"
+version = "4.16.2~ynh1"
 
 maintainers = ["Thatoo"]
 
@@ -122,7 +122,7 @@ ram.runtime = "50M"
     [resources.apt]
     # This will automatically install/uninstall the following apt packages
     # and implicitly define the $phpversion setting as 8.0 (if phpX.Y-foobar dependencies are listed)
-    packages = ["python3", "python3-pip", "python3-venv", "python3-dev", "python3-setuptools", "python3-distutils", "supervisor", "software-properties-common", "git", "curl", "ca-certificates", "redis-server", "xvfb", "libfontconfig", "wkhtmltopdf", "fontconfig", "xfonts-base", "xfonts-75dpi", "libxrender1", "mariadb-server", "mariadb-client"]
+    packages = ["python3", "python3-pip", "python3-venv", "python3-dev", "python3-setuptools", "python3-distutils", "software-properties-common", "git", "curl", "ca-certificates", "redis-server", "xvfb", "libfontconfig", "wkhtmltopdf", "fontconfig", "xfonts-base", "xfonts-75dpi", "libxrender1", "mariadb-server", "mariadb-client"]
 
             [resources.apt.extras.yarn]
             repo = "deb https://dl.yarnpkg.com/debian/ stable main"
