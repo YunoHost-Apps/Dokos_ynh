@@ -83,6 +83,20 @@ pushd $install_dir/dokos-bench-folder
 popd
 
 #=================================================
+# REMOVE SERVICE INTEGRATION IN YUNOHOST
+#=================================================
+
+# Remove the service from the list of services known by YunoHost (added from `yunohost service add`)
+yunohost service remove $app-node-socketio
+yunohost service remove $app-frappe-web
+yunohost service remove $app-frappe-schedule
+yunohost service remove $app-frappe-short-worker
+yunohost service remove $app-frappe-long-worker
+yunohost service remove $app-frappe-default-worker
+yunohost service remove $app-redis-queue
+yunohost service remove $app-redis-cache
+
+#=================================================
 # STOP SYSTEMD SERVICES
 #=================================================
 ynh_script_progression --message="Stopping systemd services..." --weight=1
@@ -212,6 +226,20 @@ systemctl enable "$app-redis.target" --quiet
 systemctl enable "$app-workers.target" --quiet
 systemctl enable "$app-web.target" --quiet
 systemctl enable "$app.target" --quiet
+
+#=================================================
+# INTEGRATE SERVICE IN YUNOHOST
+#=================================================
+ynh_script_progression --message="Integrating service in YunoHost..." --weight=1
+
+yunohost service add "$app-redis-cache" --description="$app redis cache service"
+yunohost service add "$app-redis-queue" --description="$app redis queue service"
+yunohost service add "$app-frappe-default-worker" --description="$app default worker service"
+yunohost service add "$app-frappe-long-worker" --description="$app long worker service"
+yunohost service add "$app-frappe-short-worker" --description="$app short worker service"
+yunohost service add "$app-frappe-schedule" --description="$app schedule service"
+yunohost service add "$app-frappe-web" --description="$app web service"
+yunohost service add "$app-node-socketio" --description="$app node socketio service"
 
 #=================================================
 # RESTART SYSTEMD SERVICES
