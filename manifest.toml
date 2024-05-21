@@ -21,14 +21,13 @@ code = "https://gitlab.com/dokos/dokos"
 [integration]
 yunohost = '>= 12.0'
 # List of supported archs using the dpkg --print-architecture nomenclature (amd64/i386/armhf/arm64), for example: ["amd64", "i386']
-architectures = ['amd64'] # TODO : handle the "all" option (no ["all"])
-multi_instance = false
-ldap = false # TODO : fixme, use actual booleans + handle the "not_relevant" value
+architectures = ['amd64']
+multi_instance = true
+ldap = false
 sso = false
-# FIXME: replace with an **estimate** minimum disk and RAM requirements. e.g. 20M, 400M, 1G... You may have have a look at CI results
-disk = "50M"
-ram.build = "50M"
-ram.runtime = "50M"
+disk = "4G"
+ram.build = "250M"
+ram.runtime = "512M"
 
 [install]
 
@@ -118,6 +117,8 @@ ram.runtime = "50M"
     # This will pick a random port for reverse-proxying and store it as the $port setting
     redis_cache.default = 13000
     redis_queue.default = 11000
+    socketio.default = 9000
+    webserver.default = 8000
 
     [resources.apt]
     # This will automatically install/uninstall the following apt packages
