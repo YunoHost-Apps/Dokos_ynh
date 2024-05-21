@@ -184,9 +184,9 @@ ynh_systemd_action --service_name=$app-redis-cache --action="start" --log_path="
 ynh_systemd_action --service_name=$app-redis-queue --action="start" --log_path="$install_dir/dokos-bench-folder/logs/redis-queue.log" --line_match="Ready to accept connections"
 systemctl start "$app-redis.target" --quiet
 
-ynh_systemd_action --service_name=$app-frappe-default-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/default-worker.log" --line_match="Listening on var-www-dokos-dokos-bench-folder:default"
-ynh_systemd_action --service_name=$app-frappe-long-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/long-worker.log" --line_match="Listening on var-www-dokos-dokos-bench-folder:long"
-ynh_systemd_action --service_name=$app-frappe-short-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/short-worker.log" --line_match="Listening on var-www-dokos-dokos-bench-folder:short"
+ynh_systemd_action --service_name=$app-frappe-default-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/default-worker.log" --line_match="Listening on var-www-$app-dokos-bench-folder:default"
+ynh_systemd_action --service_name=$app-frappe-long-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/long-worker.log" --line_match="Listening on var-www-$app-dokos-bench-folder:long"
+ynh_systemd_action --service_name=$app-frappe-short-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/short-worker.log" --line_match="Listening on var-www-$app-dokos-bench-folder:short"
 ynh_systemd_action --service_name=$app-frappe-schedule --action="start" --log_path="systemd" --line_match="Started dokos-frappe-schedule.service - "
 systemctl start "$app-workers.target" --quiet
 
