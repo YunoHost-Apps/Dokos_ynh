@@ -155,7 +155,7 @@ then
     	# Setup Python's virtual environment for your bench. This sets up a env folder under the root of the bench directory.
     	ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup env
 		# Generate or over-write sites/common_site_config.json
-		ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup config
+    	ynh_add_config --template="../conf/common_site_config.json" --destination="$install_dir/dokos-bench-folder/sites/common_site_config.json"
 		# Generates configuration for Redis
 		ynh_add_config --template="../conf/redis_queue.conf" --destination="$install_dir/dokos-bench-folder/config/redis_queue.conf"
 		ynh_add_config --template="../conf/redis_cache.conf" --destination="$install_dir/dokos-bench-folder/config/redis_cache.conf"
