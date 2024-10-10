@@ -15,5 +15,5 @@
     "socketio_port": __PORT_SOCKETIO__,
     "use_redis_auth": false,
     "webserver_port": __PORT_WEBSERVER__
-   }
+}
    
