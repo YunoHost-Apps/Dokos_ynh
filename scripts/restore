@@ -18,6 +18,11 @@ source ../settings/scripts/_ynh_mysql_connect_as.sh
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
+ynh_script_progression --message="Installing wkhtmltopdf patched qt package..." --weight=1
+
+# Install wkhtmltopdf patched qt package
+install_wkhtmltopdf_patched_qt_package
+
 ynh_script_progression --message="Installing NodeJS..." --weight=10
 
 # Install Nodejs

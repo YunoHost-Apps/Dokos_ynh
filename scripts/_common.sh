@@ -8,6 +8,23 @@ nodejs_version=18
 #=================================================
 # PERSONAL HELPERS
 #=================================================
+install_wkhtmltopdf_patched_qt_package() {
+    # Create the temporary directory
+	tempdir="$(mktemp -d)"
+	# Download the deb files
+	ynh_setup_source --dest_dir="$tempdir" --source_id="wkhtmltopdf_patched_qt"
+    # Install the package
+    ynh_package_install \
+        "$tempdir/wkhtmltopdf_patched_qt.deb"
+    # Mark packages as dependencies, to allow automatic removal
+    apt-mark auto wkhtmltopdf
+}
+
+uninstall_wkhtmltopdf_patched_qt_package() {
+    apt-mark unhold wkhtmltopdf
+    ynh_package_autopurge wkhtmltopdf
+}
+
 install_app_to_bench() {
     
     local apps_dir=$install_dir/dokos-bench-folder/apps

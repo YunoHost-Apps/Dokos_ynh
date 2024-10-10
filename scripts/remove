@@ -94,6 +94,7 @@ ynh_script_progression --message="Removing dependencies..." --weight=10
 
 # Remove metapackage and its dependencies
 ynh_remove_nodejs
+uninstall_wkhtmltopdf_patched_qt_package
 
 #=================================================
 # END OF SCRIPT
