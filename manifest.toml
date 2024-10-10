@@ -101,8 +101,8 @@ ram.runtime = "512M"
         arm64.url = "https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_arm64.deb"
         arm64.sha256 = "b6606157b27c13e044d0abbe670301f88de4e1782afca4f9c06a5817f3e03a9c"
         autoupdate.strategy = "latest_github_release"
-        autoupdate.asset.amd64 = ".*\.bookworm_amd64.deb"
-        autoupdate.asset.arm64 = ".*\.bookworm_arm64.deb"
+        autoupdate.asset.amd64 = ".*\\.bookworm_amd64.deb"
+        autoupdate.asset.arm64 = ".*\\.bookworm_arm64.deb"
 
         format = "whatever"
         extract = false
