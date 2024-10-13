@@ -3,15 +3,15 @@ packaging_format = 2
 id = "dokos"
 name = "Dokos"
 
-description.en = "Dokos is a 100% open-source management software that is based on ERPNext"
-description.fr = "Dokos est une plateforme de gestion d&#39;entreprise complète, 100% open-source, basée sur ERPNext"
+description.en = "A 100% open-source management software that is based on ERPNext"
+description.fr = "Une plateforme de gestion d'entreprise complète, 100% open-source, basée sur ERPNext"
 
-version = "4.1.0~ynh1"
+version = "4.18.0~ynh1"
 
 maintainers = ["Thatoo"]
 
 [upstream]
-license = "GPLv3"
+license = "GPL-3.0-or-later"
 website = "https://dokos.io/"
 
 admindoc = "https://doc.dokos.io/dodock/"
@@ -19,26 +19,21 @@ userdoc = "https://doc.dokos.io/dokos"
 code = "https://gitlab.com/dokos/dokos"
 
 [integration]
-yunohost = '>= 11.2'
+yunohost = '>= 12.0'
 # List of supported archs using the dpkg --print-architecture nomenclature (amd64/i386/armhf/arm64), for example: ["amd64", "i386']
-architectures = "amd64" # TODO : handle the "all" option (no ["all"])
-multi_instance = true ldap = "true" # TODO : fixme, use actual booleans + handle the "not_relevant" value
-sso = "false"
-# FIXME: replace with an **estimate** minimum disk and RAM requirements. e.g. 20M, 400M, 1G... You may have have a look at CI results
-disk = "50M"
-ram.build = "50M"
-ram.runtime = "50M"
+architectures = ['amd64', 'arm64',]
+multi_instance = true
+ldap = false
+sso = false
+disk = "4G"
+ram.build = "250M"
+ram.runtime = "512M"
 
 [install]
 
     [install.domain]
     # this is a generic question - ask strings are automatically handled by YunoHost's core
     type = "domain"
-
-    [install.path]
-    # this is a generic question - ask strings are automatically handled by YunoHost's core
-    type = "path"
-    default = "/example"
 
     [install.init_main_permission]
     # this is a generic question - ask strings are automatically handled by YunoHost's core
@@ -50,7 +45,15 @@ ram.runtime = "50M"
     ask.en = "Choose the application language"
     ask.fr = "Choisissez la langue de l'application"
     type = "select"
-    choices = en
+    choices = ["en_EN", "fr_FR"]
+    default = "fr_FR"
+    
+    [install.password]
+    # this is a generic question - ask strings are automatically handled by YunoHost's core
+    # Note that user-provided passwords questions are not automatically saved as setting
+    help.en = "Use the help field to add an information for the admin about this question."
+    help.fr = "Utilisez le champ aide pour ajouter une information à l'intention de l'administrateur à propos de cette question."
+    type = "password"
 
 [resources]
     # See the packaging documentation for the full set
@@ -59,22 +62,56 @@ ram.runtime = "50M"
 
     [resources.sources]
 
-        [resources.sources.main]
+        [resources.sources.frappe]
         # This will pre-fetch the asset which can then be deployed during the install/upgrade scripts with :
         #    ynh_setup_source --dest_dir="$install_dir"
         # You can also define other assets than "main" and add --source_id="foobar" in the previous command
-        url = "https://gitlab.com/dokos/dokos/-/archive/v4.1.0/dokos-v4.1.0.tar.gz"
-        sha256 = "b8b253c0c7a7d5abd8f0900c2fceef93ce063ae08e20821ec18464a82e733675"
+        url = "https://gitlab.com/dokos/dodock/-/archive/v4.19.0/dodock-v4.19.0.tar.gz"
+        sha256 = "bae9cdb50146f4f6a74df5eff3bf87cea55ac277668f8b8eaf2ff1d51295e230"
+        prefetch = true
 
         # These infos are used by https://github.com/YunoHost/apps/blob/master/tools/autoupdate_app_sources/autoupdate_app_sources.py
         # to auto-update the previous asset urls and sha256sum + manifest version
         # assuming the upstream's code repo is on github and relies on tags or releases
         # See the 'sources' resource documentation for more details
 
-        # autoupdate.strategy = "latest_github_tag"
+        autoupdate.strategy = "latest_gitlab_release"
+
+        [resources.sources.erpnext]
+        url = "https://gitlab.com/dokos/dokos/-/archive/v4.18.0/dokos-v4.18.0.tar.gz"
+        sha256 = "64bcd35195b9eb758d8e95b31935f3712680250ef6277aab63beae02a451ce10"
+        prefetch = true
+        autoupdate.strategy = "latest_gitlab_release"
+
+        [resources.sources.payments]
+        url = "https://gitlab.com/dokos/payments/-/archive/v2.4.1/payments-v2.4.1.tar.gz"
+        sha256 = "686facde4893660ef3478efd9bcb355ae3acce072fad5c917b77fc351be7dd1c"
+        prefetch = true
+        autoupdate.strategy = "latest_gitlab_release"
+
+        [resources.sources.hrms]
+        url = "https://gitlab.com/dokos/hrms/-/archive/v2.19.0/hrms-v2.19.0.tar.gz"
+        sha256 = "381b8c42d9cf9c8fe7c1b04ee02233554dd9cf11593feb37b5291a3bc9149cc7"
+        prefetch = true
+        autoupdate.strategy = "latest_gitlab_release"
+
+        [resources.sources.wkhtmltopdf_patched_qt]
+        amd64.url = "https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_amd64.deb"
+        amd64.sha256 = "98ba0d157b50d36f23bd0dedf4c0aa28c7b0c50fcdcdc54aa5b6bbba81a3941d"
+        arm64.url = "https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_arm64.deb"
+        arm64.sha256 = "b6606157b27c13e044d0abbe670301f88de4e1782afca4f9c06a5817f3e03a9c"
+        autoupdate.strategy = "latest_github_release"
+        autoupdate.asset.amd64 = ".*\\.bookworm_amd64.deb"
+        autoupdate.asset.arm64 = ".*\\.bookworm_arm64.deb"
+
+        format = "whatever"
+        extract = false
+        rename = "wkhtmltopdf_patched_qt.deb"
+        prefetch = false
 
     [resources.system_user]
     # This will provision/deprovision a unix system user
+    allow_email = true
 
     [resources.install_dir]
     # This will create/remove the install dir as /var/www/$app
@@ -91,9 +128,21 @@ ram.runtime = "50M"
 
     [resources.ports]
     # This will pick a random port for reverse-proxying and store it as the $port setting
+    redis_cache.default = 13000
+    redis_queue.default = 11000
+    socketio.default = 9000
+    webserver.default = 8000
+
     [resources.apt]
     # This will automatically install/uninstall the following apt packages
     # and implicitly define the $phpversion setting as 8.0 (if phpX.Y-foobar dependencies are listed)
-    packages = "python3-pip python3-venv ca-certificates git redis-server xvfb libfontconfig wkhtmltopdf mariadb-server "[resources.database]
+    packages = ["python3", "python3-pip", "python3-venv", "python3-dev", "python3-setuptools", "python3-distutils", "software-properties-common", "git", "curl", "ca-certificates", "redis-server", "xvfb", "libfontconfig", "fontconfig", "xfonts-base", "xfonts-75dpi", "libxrender1", "mariadb-server", "mariadb-client"]
+
+            [resources.apt.extras.yarn]
+            repo = "deb https://dl.yarnpkg.com/debian/ stable main"
+            key = "https://dl.yarnpkg.com/debian/pubkey.gpg"
+            packages = ["yarn"]
+
+    [resources.database]
     # This will automatically provision/deprovison a database and store the corresponding credentials in settings $db_user, $db_name, $db_pwd
     type = "mysql"

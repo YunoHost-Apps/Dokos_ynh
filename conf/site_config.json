@@ -1,0 +1,10 @@
+{
+ "host_name": "https://__DOMAIN__:443",
+ "db_name": "__DB_NAME__",
+ "db_password": "__DB_PWD__",
+ "db_type": "mariadb",
+ "pause_scheduler": false,
+ "user_type_doctype_limit": {
+  "employee_self_service": 30
+ }
+}
