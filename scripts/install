@@ -242,6 +242,101 @@ ynh_script_progression --message="Reloading NGINX web server..." --weight=1
 ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================
+# SETUP LDAP
+#=================================================
+ynh_script_progression --message="Setup ldap..." --weight=1
+
+ynh_exec_as $app $install_dir/bin/python -m pip install ldap3
+
+ptoken=$(curl -c - -kX POST "https://$domain/api/method/login" \
+     -H 'Content-Type: application/json' \
+     -H 'Accept: application/json' \
+     -d "{\"usr\":\"Administrator\",\"pwd\":\"$YNH_APP_ARG_PASSWORD\"}"  | grep sid )
+
+#FIXME: does a `cut` works after a pipe here ?
+echo $ptoken > /tmp/ptoken
+psid=$(cut -d' ' -f7 /tmp/ptoken)
+rm /tmp/ptoken
+
+#TODO
+admin_pwd=mondelibre
+curr_date=$(date -u +%Y-%m-%d+%H:%M:%S.%6N)
+
+# conf_json=$(cat <<EOL | python3 -c "import sys, json; print(json.load(sys.stdin))"
+# {
+#     "doc": "Save"
+# }
+# EOL
+# )
+
+conf_json_str=$(cat <<EOL 
+{
+	"doc": "{   \"name\":\"LDAP+Settings\",\"owner\":\"Administrator\",\"modified\":\"$curr_date\",\"modified_by\":\"Administrator\",
+                \"docstatus\":0,\"idx\":\"0\",\"enabled\":1,\"ldap_directory_server\":\"OpenLDAP\",
+                \"ldap_server_url\":\"localhost\",\"base_dn\":\"uid=administrateur,ou=users,dc=yunohost,dc=org\",
+                \"password\":\"$admin_pwd\",
+                \"ldap_search_path_user\":\"ou=users,dc=yunohost,dc=org\",\"ldap_search_string\":\"(&(objectClass=posixAccount)(uid={0}))\",
+                \"ldap_search_path_group\":\"ou=groups,dc=yunohost,dc=org\",\"ldap_email_field\":\"mail2\",\"ldap_username_field\":\"uid\",
+                \"ldap_first_name_field\":\"givenName\",\"do_not_create_new_user\":0,\"ssl_tls_mode\":\"Off\",\"require_trusted_certificate\":\"No\",
+                \"default_user_type\":\"Employee+Self+Service\",\"doctype\":\"LDAP+Settings\",
+                \"ldap_groups\":[]
+            }",
+	"action": "Save"
+}
+EOL
+)
+conf_json=$(echo $conf_json_str | python3 -c "import sys, json; print(json.load(sys.stdin, strict=False))")
+conf_json_1=$(echo $conf_json | sed 's/'\'doc\''/"doc"/g')
+conf_json_2=$(echo $conf_json_1 | sed 's/'\'action\''/"action"/g')
+conf_json_3=$(echo $conf_json_2 | sed 's/'\''{/{/g')
+conf_json_4=$(echo $conf_json_3 | sed 's/}'\''/}/g')
+conf_json_5=$(echo $conf_json_4 | sed 's/'\'Save\''/"Save"/g')
+conf_http_url_params=$(python3 -c "import sys; from urllib.parse import urlencode; print(urlencode($conf_json_5))")
+# conf_json=$(python3 -c "import sys, json; print(json.load(sys.stdin)['/tmp/conf_json'])")
+
+# {
+# 	"doc": "{\"name\":\"LDAP+Settings\",\"owner\":\"Administrator\",\"modified\":\"2024-05-20+16:26:03.330106\",\"modified_by\":\"Administrator\",\"docstatus\":0,\"idx\":\"0\",\"enabled\":1,\"ldap_directory_server\":\"OpenLDAP\",\"ldap_server_url\":\"localhost\",\"base_dn\":\"uid=administrateur,ou=users,dc=yunohost,dc=org\",\"password\":\"**********\",\"ldap_search_path_user\":\"ou=users,dc=yunohost,dc=org\",\"ldap_search_string\":\"(&(objectClass=posixAccount)(uid={0}))\",\"ldap_search_path_group\":\"ou=groups,dc=yunohost,dc=org\",\"ldap_email_field\":\"mail\",\"ldap_username_field\":\"uid\",\"ldap_first_name_field\":\"givenName\",\"do_not_create_new_user\":0,\"ssl_tls_mode\":\"Off\",\"require_trusted_certificate\":\"No\",\"default_user_type\":\"Employee+Self+Service\",\"doctype\":\"LDAP+Settings\",\"ldap_groups\":[],\"__last_sync_on\":\"2024-07-22T15:27:42.669Z\",\"__unsaved\":1}",
+# 	"action": "Save"
+# }
+
+#FIXME:
+#maybe add :
+#     \"__last_sync_on\":\"2024-07-22T15:27:42.669Z\",
+#    \"__unsaved\":1
+
+# token api_key:api_secret
+
+# See doc: https://frappeframework.com/docs/user/en/api/rest
+# api_key="28067c6f797bddc"
+# api_secret="2dccabd72b6fbab"
+# token="$api_key:$api_secret"
+# -H "Authorization: token $token" \
+
+
+#"doc=%7B%22name%22%3A%22LDAP+Settings%22%2C%22owner%22%3A%22Administrator%22%2C%22modified%22%3A%222024-07-23+10%3A25%3A41.343813%22%2C%22modified_by%22%3A%22Administrator%22%2C%22docstatus%22%3A0%2C%22idx%22%3A%220%22%2C%22enabled%22%3A1%2C%22ldap_directory_server%22%3A%22OpenLDAP%22%2C%22ldap_server_url%22%3A%22localhost%22%2C%22base_dn%22%3A%22uid%3Dadministrateur%2Cou%3Dusers%2Cdc%3Dyunohost%2Cdc%3Dorg%22%2C%22password%22%3A%22**********%22%2C%22ldap_search_path_user%22%3A%22ou%3Dusers%2Cdc%3Dyunohost%2Cdc%3Dorg%22%2C%22ldap_search_string%22%3A%22(%26(objectClass%3DposixAccount)(uid%3D%7B0%7D))%22%2C%22ldap_search_path_group%22%3A%22ou%3Dgroups%2Cdc%3Dyunohost%2Cdc%3Dorg%22%2C%22ldap_email_field%22%3A%22mail%22%2C%22ldap_username_field%22%3A%22uid%22%2C%22ldap_first_name_field%22%3A%22givenName%22%2C%22do_not_create_new_user%22%3A0%2C%22ssl_tls_mode%22%3A%22Off%22%2C%22require_trusted_certificate%22%3A%22No%22%2C%22default_user_type%22%3A%22Employee+Self+Service%22%2C%22doctype%22%3A%22LDAP+Settings%22%2C%22ldap_groups%22%3A%5B%5D%2C%22__last_sync_on%22%3A%222024-07-23T08%3A34%3A39.870Z%22%2C%22__unsaved%22%3A1%7D&action=Save"
+
+# edited
+#"doc=%7B%22name%22%3A%22LDAP+Settings%22%2C%22owner%22%3A%22Administrator%22%2C%22modified%22%3A%222024-07-24%2B09%3A40%3A51.729700%22%2C%22modified_by%22%3A%22Administrator%22%2C%22docstatus%22%3A0%2C%22idx%22%3A%220%22%2C%22enabled%22%3A1%2C%22ldap_directory_server%22%3A%22OpenLDAP%22%2C%22ldap_server_url%22%3A%22localhost%22%2C%22base_dn%22%3A%22uid%3Dadministrateur%2Cou%3Dusers%2Cdc%3Dyunohost%2Cdc%3Dorg%22%2C%22password%22%3A%22mondelibre%22%2C%22ldap_search_path_user%22%3A%22ou%3Dusers%2Cdc%3Dyunohost%2Cdc%3Dorg%22%2C%22ldap_search_string%22%3A%22(%26(objectClass%3DposixAccount)(uid%3D%7B0%7D))%22%2C%22ldap_search_path_group%22%3A%22ou%3Dgroups%2Cdc%3Dyunohost%2Cdc%3Dorg%22%2C%22ldap_email_field%22%3A%22mail%22%2C%22ldap_username_field%22%3A%22uid%22%2C%22ldap_first_name_field%22%3A%22givenName%22%2C%22do_not_create_new_user%22%3A0%2C%22ssl_tls_mode%22%3A%22Off%22%2C%22require_trusted_certificate%22%3A%22No%22%2C%22default_user_type%22%3A%22Employee+Self+Service%22%2C%22doctype%22%3A%22LDAP+Settings%22%2C%22ldap_groups%22%3A%5B%5D%2C%22__last_sync_on%22%3A%222024-07-23T08%3A34%3A39.870Z%22%2C%22__unsaved%22%3A1%7D&action=Save"
+
+
+curl -kX GET https://dokos.local/app/ldap-settings/LDAP%20Settings \
+    -H "Cookie: system_user=yes; full_name=Administrator; user_id=Administrator; user_image=; sid=$psid"
+
+#TODO
+# in browser "f37b94e74b28743fa0afe635f14923dd1516e82e03d514ab57fc377a"
+csrf_token=
+
+curl -kX POST "https://$domain/api/method/frappe.desk.form.save.savedocs" \
+     -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
+     -H 'Accept: application/json' \
+     -H "X-Frappe-CSRF-Token: $csrf_token" \
+     -H "Cookie: system_user=yes; full_name=Administrator; user_id=Administrator; user_image=; sid=$psid" \
+     -d "$conf_http_url_params"
+     
+#-H 'Origin: https://dokos.local' \
+#-H 'Referer: https://dokos.local/app/ldap-settings/LDAP%20Settings' \
+
+#=================================================
 # SETUP LOGROTATE
 #=================================================
 ynh_script_progression --message="Configuring log rotation..." --weight=1
