@@ -5,7 +5,7 @@
 
 # YunoHost 上的 Dokos
 
-[![集成程度](https://dash.yunohost.org/integration/dokos.svg)](https://dash.yunohost.org/appci/app/dokos) ![工作状态](https://ci-apps.yunohost.org/ci/badges/dokos.status.svg) ![维护状态](https://ci-apps.yunohost.org/ci/badges/dokos.maintain.svg)
+[![集成程度](https://dash.yunohost.org/integration/dokos.svg)](https://ci-apps.yunohost.org/ci/apps/dokos/) ![工作状态](https://ci-apps.yunohost.org/ci/badges/dokos.status.svg) ![维护状态](https://ci-apps.yunohost.org/ci/badges/dokos.maintain.svg)
 
 [![使用 YunoHost 安装 Dokos](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=dokos)
 
@@ -16,9 +16,23 @@
 
 ## 概况
 
+Open-source business management software based on ERPNext, and powered by the highly customizable low-code framework Dodock/Frappe.
+
+Many features are available, such as accounting, billing, CRM, e-commerce, manufacturing, project management, Third-Places management, and so much more.
+
+**Session cookies conflict**
+This Dokos package should not be installed on a Yunohost subdomain: 
+Yunohost on `yunohost.domain.tld` and Dokos on `dokos.domain.tld` works fine!
+Yunohost on `yunohost.domain.tld` and Dokos on `dokos.yunohost.domain.tld` will create conflicts between Yunohost and Dokos session cookies.
 
 
-**分发版本：** 4.16.2~ynh1
+
+**分发版本：** 4.33.0~ynh1
+
+## 截图
+
+![Dokos 的截图](./doc/screenshots/dashboard.png)
+
 ## 文档与资源
 
 - 官方应用网站： <https://dokos.io/>

@@ -1,4 +1,4 @@
-*Dokos*** is a complete 100% open-source business management software.
+**Dokos** is a complete 100% open-source business management software.
 
 The Dokos application is an adaptation of the ERPNext application by [Frappe Technologies](https://github.com/frappe/erpnext)
 
