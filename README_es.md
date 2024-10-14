@@ -5,7 +5,7 @@ No se debe editar a mano.
 
 # Dokos para Yunohost
 
-[![Nivel de integración](https://dash.yunohost.org/integration/dokos.svg)](https://dash.yunohost.org/appci/app/dokos) ![Estado funcional](https://ci-apps.yunohost.org/ci/badges/dokos.status.svg) ![Estado En Mantención](https://ci-apps.yunohost.org/ci/badges/dokos.maintain.svg)
+[![Nivel de integración](https://dash.yunohost.org/integration/dokos.svg)](https://ci-apps.yunohost.org/ci/apps/dokos/) ![Estado funcional](https://ci-apps.yunohost.org/ci/badges/dokos.status.svg) ![Estado En Mantención](https://ci-apps.yunohost.org/ci/badges/dokos.maintain.svg)
 
 [![Instalar Dokos con Yunhost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=dokos)
 
@@ -16,9 +16,23 @@ No se debe editar a mano.
 
 ## Descripción general
 
+Open-source business management software based on ERPNext, and powered by the highly customizable low-code framework Dodock/Frappe.
+
+Many features are available, such as accounting, billing, CRM, e-commerce, manufacturing, project management, Third-Places management, and so much more.
+
+**Session cookies conflict**
+This Dokos package should not be installed on a Yunohost subdomain: 
+Yunohost on `yunohost.domain.tld` and Dokos on `dokos.domain.tld` works fine!
+Yunohost on `yunohost.domain.tld` and Dokos on `dokos.yunohost.domain.tld` will create conflicts between Yunohost and Dokos session cookies.
 
 
-**Versión actual:** 4.16.2~ynh1
+
+**Versión actual:** 4.33.0~ynh1
+
+## Capturas
+
+![Captura de Dokos](./doc/screenshots/dashboard.png)
+
 ## Documentaciones y recursos
 
 - Sitio web oficial: <https://dokos.io/>
@@ -30,7 +44,7 @@ No se debe editar a mano.
 
 ## Información para desarrolladores
 
-Por favor enviar sus correcciones a la [`branch testing`](https://github.com/YunoHost-Apps/dokos_ynh/tree/testing
+Por favor enviar sus correcciones a la [rama `testing`](https://github.com/YunoHost-Apps/dokos_ynh/tree/testing).
 
 Para probar la rama `testing`, sigue asÍ:
 
