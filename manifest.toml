@@ -72,11 +72,6 @@ ram.runtime = "512M"
         sha256 = "13a8d1a9708b65612d7b341d7cce2fc12daa277c38bad81f6304cb63bafb930d"
         prefetch = true
 
-        # These infos are used by https://github.com/YunoHost/apps/blob/master/tools/autoupdate_app_sources/autoupdate_app_sources.py
-        # to auto-update the previous asset urls and sha256sum + manifest version
-        # assuming the upstream's code repo is on github and relies on tags or releases
-        # See the 'sources' resource documentation for more details
-
         autoupdate.strategy = "latest_gitlab_release"
 
         [resources.sources.erpnext]
@@ -90,18 +85,22 @@ ram.runtime = "512M"
         sha256 = "b325ee61961ef56c040b17ea0d821be21f84145324daf40396694e3d32eba6a2"
         prefetch = true
         autoupdate.strategy = "latest_gitlab_release"
+        autoupdate.upstream = "https://gitlab.com/dokos/payments"
 
         [resources.sources.hrms]
         url = "https://gitlab.com/dokos/hrms/-/archive/v2.36.0/hrms-v2.36.0.tar.gz"
         sha256 = "afbe821224350740c72e830cbff02e51c8f773850bb198c99dc8d34a6a7e2b57"
         prefetch = true
         autoupdate.strategy = "latest_gitlab_release"
+        autoupdate.upstream = "https://gitlab.com/dokos/hrms"
 
         [resources.sources.wkhtmltopdf_patched_qt]
         amd64.url = "https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_amd64.deb"
         amd64.sha256 = "98ba0d157b50d36f23bd0dedf4c0aa28c7b0c50fcdcdc54aa5b6bbba81a3941d"
         arm64.url = "https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_arm64.deb"
         arm64.sha256 = "b6606157b27c13e044d0abbe670301f88de4e1782afca4f9c06a5817f3e03a9c"
+        
+        autoupdate.upstream = "https://github.com/wkhtmltopdf/packaging"
         autoupdate.strategy = "latest_github_release"
         autoupdate.asset.amd64 = ".*\\.bookworm_amd64.deb"
         autoupdate.asset.arm64 = ".*\\.bookworm_arm64.deb"
