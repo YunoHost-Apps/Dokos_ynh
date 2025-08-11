@@ -29,7 +29,12 @@ install_app_to_bench() {
     
     local apps_dir=$install_dir/dokos-bench-folder/apps
 
-    ynh_setup_source --dest_dir="$apps_dir/$1" --source_id="$1"
+    if $1 -eq "erpnext"; then
+        src="main"
+    else
+        src="$1"
+    fi
+    ynh_setup_source --dest_dir="$apps_dir/$1" --source_id="$src"
 
     chmod u+x $install_dir/dokos-bench-folder/env/bin/activate
     ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/activate
