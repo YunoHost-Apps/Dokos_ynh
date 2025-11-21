@@ -29,7 +29,7 @@ install_app_to_bench() {
     
     local apps_dir=$install_dir/dokos-bench-folder/apps
 
-    if [$1 == "erpnext"]; then
+    if [ $1 == "erpnext" ]; then
         src="main"
     else
         src="$1"
