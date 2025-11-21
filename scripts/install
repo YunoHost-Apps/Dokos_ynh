@@ -101,7 +101,7 @@ pushd $install_dir/dokos-bench-folder
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup socketio
 popd
 
-ynh_script_progression --message="Installing Dodock (frappe), it can take quiet some time..." --weight=30
+ynh_script_progression --message="Installing Dodock (frappe), it can take quite some time..." --weight=30
 
 install_app_to_bench frappe
 
