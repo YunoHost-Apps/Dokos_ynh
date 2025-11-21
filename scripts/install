@@ -101,7 +101,7 @@ pushd $install_dir/dokos-bench-folder
     ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench setup socketio
 popd
 
-ynh_script_progression --message="Installing Dodock (frappe), it can take quiet some time..." --weight=30
+ynh_script_progression --message="Installing Dodock (frappe), it can take quite some time..." --weight=30
 
 install_app_to_bench frappe
 
@@ -117,13 +117,9 @@ ynh_script_progression --message="Installing $app applications hrms..." --weight
 
 install_app_to_bench hrms
 
-ynh_script_progression --message="Installing $app new site..." --weight=30
 
-pushd $install_dir/dokos-bench-folder
-    # doc about bench new-site https://frappeframework.com/docs/user/en/bench/reference/new-site
-    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench new-site $domain --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $YNH_APP_ARG_PASSWORD
-    ynh_add_config --template="../conf/site_config.json" --destination="$install_dir/dokos-bench-folder/sites/$domain/site_config.json"
-popd
+## WARNING
+# Cannot install new site now because it requires redis queue service to run... The block was moved after redis services start
 
 chmod 755 "$install_dir"
 chown -R $app: "$install_dir"
@@ -190,6 +186,21 @@ ynh_systemd_action --service_name=$app-redis-cache --action="start" --log_path="
 ynh_systemd_action --service_name=$app-redis-queue --action="start" --log_path="$install_dir/dokos-bench-folder/logs/redis-queue.log" --line_match="Ready to accept connections"
 systemctl start "$app-redis.target" --quiet
 
+#=================================================
+# FINISH INSTALLATION BY INSTALLING DOKOS SITE
+#=================================================
+ynh_script_progression --message="Installing $app new site..." --weight=30
+
+pushd $install_dir/dokos-bench-folder
+    # doc about bench new-site https://frappeframework.com/docs/user/en/bench/reference/new-site
+    ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench new-site $domain --db-name $db_name --db-password $db_pwd --no-setup-db --admin-password $YNH_APP_ARG_PASSWORD
+    ynh_add_config --template="../conf/site_config.json" --destination="$install_dir/dokos-bench-folder/sites/$domain/site_config.json"
+popd
+
+
+#=================================================
+# START ADDITIONAL SYSTEMD SERVICES
+#=================================================
 ynh_systemd_action --service_name=$app-frappe-default-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/default-worker.log" --line_match="Listening on var-www-$app-dokos-bench-folder:default"
 ynh_systemd_action --service_name=$app-frappe-long-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/long-worker.log" --line_match="Listening on var-www-$app-dokos-bench-folder:long"
 ynh_systemd_action --service_name=$app-frappe-short-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/short-worker.log" --line_match="Listening on var-www-$app-dokos-bench-folder:short"
