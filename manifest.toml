@@ -72,11 +72,6 @@ ram.runtime = "512M"
         sha256 = "e40f14cf42d5bba3d075718a084eebe206108b1f5bef2baa96fb27264d2c785d"
         prefetch = true
 
-        # These infos are used by https://github.com/YunoHost/apps/blob/master/tools/autoupdate_app_sources/autoupdate_app_sources.py
-        # to auto-update the previous asset urls and sha256sum + manifest version
-        # assuming the upstream's code repo is on github and relies on tags or releases
-        # See the 'sources' resource documentation for more details
-
         autoupdate.strategy = "latest_gitlab_release"
 
         [resources.sources.main]
@@ -90,21 +85,25 @@ ram.runtime = "512M"
         sha256 = "46493af61f4a423fd704c741e69c59fbab37ad73806d615f26381277d7b904b4"
         prefetch = true
         autoupdate.strategy = "latest_gitlab_release"
+        autoupdate.upstream = "https://gitlab.com/dokos/payments"
 
         [resources.sources.hrms]
         url = "https://gitlab.com/dokos/hrms/-/archive/v2.61.0/hrms-v2.61.0.tar.gz"
         sha256 = "0d37b6809b65319b9e52d3f9489d82d0c3d7c598c3342b876a60576c8317af57"
         prefetch = true
         autoupdate.strategy = "latest_gitlab_release"
+        autoupdate.upstream = "https://gitlab.com/dokos/hrms"
 
         [resources.sources.wkhtmltopdf_patched_qt]
         amd64.url = "https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_amd64.deb"
         amd64.sha256 = "98ba0d157b50d36f23bd0dedf4c0aa28c7b0c50fcdcdc54aa5b6bbba81a3941d"
         arm64.url = "https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_arm64.deb"
         arm64.sha256 = "b6606157b27c13e044d0abbe670301f88de4e1782afca4f9c06a5817f3e03a9c"
-        autoupdate.strategy = "latest_github_release"
-        autoupdate.asset.amd64 = ".*\\.bookworm_amd64.deb"
-        autoupdate.asset.arm64 = ".*\\.bookworm_arm64.deb"
+        
+        #autoupdate.upstream = "https://github.com/wkhtmltopdf/packaging"
+        #autoupdate.strategy = "latest_github_release"
+        #autoupdate.asset.amd64 = ".*\\.bookworm_amd64.deb"
+        #autoupdate.asset.arm64 = ".*\\.bookworm_arm64.deb"
 
         format = "whatever"
         extract = false
