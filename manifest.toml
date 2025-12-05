@@ -73,6 +73,8 @@ ram.runtime = "512M"
         prefetch = true
 
         autoupdate.strategy = "latest_gitlab_release"
+        autoupdate.upstream = "https://gitlab.com/dokos/dodock"
+
 
         [resources.sources.main]
         url = "https://gitlab.com/dokos/dokos/-/archive/v4.64.3/dokos-v4.64.3.tar.gz"
