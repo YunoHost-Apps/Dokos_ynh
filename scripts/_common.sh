@@ -66,7 +66,7 @@ upgrade_app_to_bench() {
         src="$1"
     fi
 
-    ynh_setup_source --dest_dir="$apps_dir/$1" --source_id="$1" --full_replace
+    ynh_setup_source --dest_dir="$apps_dir/$1" --source_id="$src" --full_replace
 
     chmod u+x $install_dir/dokos-bench-folder/env/bin/activate
     ynh_hide_warnings ynh_exec_as_app $install_dir/dokos-bench-folder/env/bin/activate
