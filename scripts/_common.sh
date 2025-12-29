@@ -37,24 +37,24 @@ install_app_to_bench() {
     ynh_setup_source --dest_dir="$apps_dir/$1" --source_id="$src"
 
     chmod u+x $install_dir/dokos-bench-folder/env/bin/activate
-    ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/activate
-    ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/python -m pip install --upgrade -e $apps_dir/$1
+    ynh_exec_warn_less ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/activate
+    ynh_exec_warn_less ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/python -m pip install --upgrade -e $apps_dir/$1
 
     chown -R $app: "$apps_dir/$1"
 
     local apps_list=$install_dir/dokos-bench-folder/sites/apps.txt
     if test -f "$apps_list"; then
-        ynh_exec_as $app echo -e "\n$1" >> $apps_list
+        ynh_exec_warn_less ynh_exec_as $app echo -e "\n$1" >> $apps_list
     else 
-        ynh_exec_as $app echo "$1" >> $apps_list
+        ynh_exec_warn_less ynh_exec_as $app echo "$1" >> $apps_list
     fi
 
     pushd $apps_dir/$1
         ynh_use_nodejs
-        ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
+        ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
 
         # Builds assets for the Frappe Applications installed on bench
-        ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app $1
+        ynh_exec_warn_less ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app $1
     popd
 
 }
@@ -63,20 +63,26 @@ upgrade_app_to_bench() {
     
     local apps_dir=$install_dir/dokos-bench-folder/apps
 
+    if [ $1 == "erpnext" ]; then
+        src="main"
+    else
+        src="$1"
+    fi
+
     ynh_setup_source --dest_dir="$apps_dir/$1" --source_id="$1" --full_replace
 
     chmod u+x $install_dir/dokos-bench-folder/env/bin/activate
-    ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/activate
-    ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/python -m pip install --upgrade -e $apps_dir/$1
+    ynh_exec_warn_less ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/activate
+    ynh_exec_warn_less ynh_exec_as $app $install_dir/dokos-bench-folder/env/bin/python -m pip install --upgrade -e $apps_dir/$1
 
     chown $app: -R "$apps_dir/$1"
 
     pushd $apps_dir/$1
         ynh_use_nodejs
-        ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
+        ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn install --check-files
         
         # Builds assets for the Frappe Applications installed on bench
-        ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app $1
+        ynh_exec_warn_less ynh_exec_as $app env PATH=$install_dir/bin:$PATH bench build --app $1
     popd
 
 }
