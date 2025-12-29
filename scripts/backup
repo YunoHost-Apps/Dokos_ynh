@@ -47,7 +47,7 @@ ynh_backup "/etc/systemd/system/$app-node-socketio.service"
 #=================================================
 ynh_print_info "Backing up the mysql database..."
 
-ynh_mysql_dump_db --default_character_set="utf8mb4" > db.sql
+ynh_mysql_dump_db > db.sql
 
 #=================================================
 # END OF SCRIPT
