@@ -85,7 +85,7 @@ install_app_to_bench hrms
 ## WARNING
 # Cannot install new site now because it requires redis queue service to run... The block was moved after redis services start
 
-chmod 750 "$install_dir"
+chmod 755 "$install_dir"
 chown -R $app:$app "$install_dir"
 
 #=================================================
@@ -203,7 +203,7 @@ pushd $install_dir/dokos-bench-folder
 popd
 
 # Now to make sure the environment is fully setup
-chmod 750 "$install_dir"
+chmod 755 "$install_dir"
 chown -R $app:$app "$install_dir"
 
 #=================================================
