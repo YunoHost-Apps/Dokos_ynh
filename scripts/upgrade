@@ -122,7 +122,7 @@ upgrade_app_to_bench hrms
 
 ynh_script_progression "Remove unneeded files and directories..."
 ynh_safe_rm "$install_dir/.cache"
-ynh_safe_rm -R "$install_dir/dokos-bench-folder/apps/hrms/node_modules"
+ynh_safe_rm "$install_dir/dokos-bench-folder/apps/hrms/node_modules"
 
 chown -R $app:www-data "$install_dir"
 
