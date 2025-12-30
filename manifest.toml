@@ -6,7 +6,7 @@ name = "Dokos"
 description.en = "A 100% open-source management software that is based on ERPNext"
 description.fr = "Une plateforme de gestion d'entreprise complète, 100% open-source, basée sur ERPNext"
 
-version = "4.33.0~ynh1"
+version = "4.64.3~ynh1"
 
 maintainers = ["Thatoo"]
 
@@ -20,7 +20,7 @@ code = "https://gitlab.com/dokos/dokos"
 
 [integration]
 yunohost = '>= 12.0'
-# List of supported archs using the dpkg --print-architecture nomenclature (amd64/i386/armhf/arm64), for example: ["amd64", "i386']
+helpers_version = "2.1"
 architectures = ['amd64', 'arm64',]
 multi_instance = true
 ldap = false
@@ -32,14 +32,11 @@ ram.runtime = "512M"
 [install]
 
     [install.domain]
-    # this is a generic question - ask strings are automatically handled by YunoHost's core
     type = "domain"
     help.en = "Choose a domain that is not one of your yunohost's subdomain : not dokos.yunohost.domain.tld."
     help.fr = "Choisissez un domain qui n'est pas un sous domaine de votre yunohost : pas dokos.yunohost.domain.tld."
 
     [install.init_main_permission]
-    # this is a generic question - ask strings are automatically handled by YunoHost's core
-    # This won't be saved as setting and will instead be used to initialize the SSOwat permission
     type = "group"
     default = "visitors"
 
@@ -51,36 +48,26 @@ ram.runtime = "512M"
     default = "fr_FR"
     
     [install.password]
-    # this is a generic question - ask strings are automatically handled by YunoHost's core
-    # Note that user-provided passwords questions are not automatically saved as setting
     help.en = "Choose a password for the administrator user, who will then be able to manage your Dokos."
     help.fr = "Choisissez le mot de passe de l'utilisateur administrator qui vous permettra ensuite de gérer votre Dokos."
     type = "password"
 
 [resources]
-    # See the packaging documentation for the full set
-    # of explanation regarding the behavior and properties for each of those
-    # https://yunohost.org/packaging_apps_resources
 
     [resources.sources]
-
-        [resources.sources.frappe]
-        # This will pre-fetch the asset which can then be deployed during the install/upgrade scripts with :
-        #    ynh_setup_source --dest_dir="$install_dir"
-        # You can also define other assets than "main" and add --source_id="foobar" in the previous command
-        url = "https://gitlab.com/dokos/dodock/-/archive/v4.67.2/dodock-v4.67.2.tar.gz"
-        sha256 = "e40f14cf42d5bba3d075718a084eebe206108b1f5bef2baa96fb27264d2c785d"
-        prefetch = true
-
-        autoupdate.strategy = "latest_gitlab_release"
-        autoupdate.upstream = "https://gitlab.com/dokos/dodock"
-
 
         [resources.sources.main]
         url = "https://gitlab.com/dokos/dokos/-/archive/v4.64.3/dokos-v4.64.3.tar.gz"
         sha256 = "3c3397bccb679adf8c003b33f24ea3af07c0e7f268801c210a8f4c5704689e6c"
         prefetch = true
         autoupdate.strategy = "latest_gitlab_release"
+
+        [resources.sources.frappe]
+        url = "https://gitlab.com/dokos/dodock/-/archive/v4.67.2/dodock-v4.67.2.tar.gz"
+        sha256 = "e40f14cf42d5bba3d075718a084eebe206108b1f5bef2baa96fb27264d2c785d"
+        prefetch = true
+        autoupdate.strategy = "latest_gitlab_release"
+        autoupdate.upstream = "https://gitlab.com/dokos/dodock"
 
         [resources.sources.payments]
         url = "https://gitlab.com/dokos/payments/-/archive/v2.24.1/payments-v2.24.1.tar.gz"
@@ -113,39 +100,27 @@ ram.runtime = "512M"
         prefetch = false
 
     [resources.system_user]
-    # This will provision/deprovision a unix system user
     allow_email = true
 
     [resources.install_dir]
-    # This will create/remove the install dir as /var/www/$app
-    # and store the corresponding setting $install_dir
+    group = "www-data:r-x"
 
     [resources.data_dir]
-    # This will create/remove the data dir as /home/yunohost.app/$app
-    # and store the corresponding setting $data_dir
 
     [resources.permissions]
-    # This will configure SSOwat permission for $domain/$path/
-    # The initial allowed group of user is configured via the init_main_permission question (public=visitors, private=all_users)
     main.url = "/"
 
     [resources.ports]
-    # This will pick a random port for reverse-proxying and store it as the $port setting
     redis_cache.default = 13000
     redis_queue.default = 11000
     socketio.default = 9000
     webserver.default = 8000
 
     [resources.apt]
-    # This will automatically install/uninstall the following apt packages
-    # and implicitly define the $phpversion setting as 8.0 (if phpX.Y-foobar dependencies are listed)
     packages = ["python3", "python3-pip", "python3-venv", "python3-dev", "python3-setuptools", "python3-distutils", "software-properties-common", "git", "curl", "ca-certificates", "redis-server", "xvfb", "libfontconfig", "fontconfig", "xfonts-base", "xfonts-75dpi", "libxrender1", "mariadb-server", "mariadb-client"]
 
-            [resources.apt.extras.yarn]
-            repo = "deb https://dl.yarnpkg.com/debian/ stable main"
-            key = "https://dl.yarnpkg.com/debian/pubkey.gpg"
-            packages = ["yarn"]
-
     [resources.database]
-    # This will automatically provision/deprovison a database and store the corresponding credentials in settings $db_user, $db_name, $db_pwd
     type = "mysql"
+
+    [resources.nodejs]
+    version = "18"
