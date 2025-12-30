@@ -120,8 +120,11 @@ ynh_script_progression "Installing $app applications hrms..."
 
 upgrade_app_to_bench hrms
 
-chmod 750 "$install_dir"
-chown -R $app: "$install_dir"
+ynh_script_progression "Remove unneeded files and directories..."
+ynh_safe_rm "$install_dir/.cache"
+ynh_safe_rm -R "$install_dir/dokos-bench-folder/apps/hrms/node_modules"
+
+chown -R $app:www-data "$install_dir"
 
 #=================================================
 # NGINX CONFIGURATION
@@ -151,8 +154,6 @@ ynh_config_add_systemd --service="$app-frappe-short-worker" --template="frappe-b
 ynh_config_add_systemd --service="$app-frappe-schedule" --template="frappe-bench-frappe-schedule.service"
 ynh_config_add_systemd --service="$app-frappe-web" --template="frappe-bench-frappe-web.service"
 ynh_config_add_systemd --service="$app-node-socketio" --template="frappe-bench-node-socketio.service"
-
-systemctl daemon-reload
 
 # Enable target systemd files
 systemctl enable "$app-redis.target" --quiet
@@ -186,10 +187,10 @@ systemctl restart "$app-redis.target" --quiet
 ynh_systemctl --service=$app-frappe-default-worker --action="restart" --log_path="$install_dir/dokos-bench-folder/logs/default-worker.log" # --wait_until="Listening on var-www-$app-dokos-bench-folder:default"
 ynh_systemctl --service=$app-frappe-long-worker --action="restart" --log_path="$install_dir/dokos-bench-folder/logs/long-worker.log" # --wait_until="Listening on var-www-$app-dokos-bench-folder:long"
 ynh_systemctl --service=$app-frappe-short-worker --action="restart" --log_path="$install_dir/dokos-bench-folder/logs/short-worker.log" # --wait_until="Listening on var-www-$app-dokos-bench-folder:short"
-ynh_systemctl --service=$app-frappe-schedule --action="restart" --log_path="systemd" --wait_until="Started dokos-frappe-schedule.service - "
+ynh_systemctl --service=$app-frappe-schedule --action="restart" --log_path="systemd"
 systemctl restart "$app-workers.target" --quiet
 
-ynh_systemctl --service=$app-frappe-web --action="restart" --log_path="systemd" --wait_until="Started dokos-frappe-web.service - "
+ynh_systemctl --service=$app-frappe-web --action="restart" --log_path="systemd"
 ynh_systemctl --service=$app-node-socketio --action="restart" --log_path="$install_dir/dokos-bench-folder/logs/node-socketio.log" # --wait_until="Realtime service listening on"
 systemctl restart "$app-web.target" --quiet
 
@@ -226,9 +227,7 @@ pushd $install_dir/dokos-bench-folder
 
 popd
 
-# Now to make sure the environment is fully setup
-chmod 750 "$install_dir"
-chown -R $app: "$install_dir"
+chown -R $app:www-data "$install_dir"
 
 #=================================================
 # RELOAD NGINX

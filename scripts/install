@@ -16,11 +16,7 @@ ynh_script_progression "Installing wkhtmltopdf patched qt package..."
 # Install wkhtmltopdf patched qt package
 install_wkhtmltopdf_patched_qt_package
 
-ynh_script_progression "Installing NodeJS..."
-
-# Install yarn
 ynh_script_progression "Installing yarn..."
-
 pushd $install_dir
     corepack enable
     ynh_hide_warnings corepack prepare yarn@latest --activate
@@ -82,11 +78,14 @@ ynh_script_progression "Installing $app applications hrms..."
 
 install_app_to_bench hrms
 
+ynh_script_progression "Remove unneeded files and directories..."
+ynh_safe_rm "$install_dir/.cache"
+ynh_safe_rm -R "$install_dir/dokos-bench-folder/apps/hrms/node_modules"
+
 ## WARNING
 # Cannot install new site now because it requires redis queue service to run... The block was moved after redis services start
 
-chmod 755 "$install_dir"
-chown -R $app:$app "$install_dir"
+chown -R $app:www-data "$install_dir"
 
 #=================================================
 # NGINX CONFIGURATION
@@ -142,7 +141,7 @@ yunohost service add "$app-node-socketio" --description="$app node socketio serv
 #=================================================
 # START SYSTEMD SERVICES
 #=================================================
-ynh_script_progression "Starting systemd services..."
+ynh_script_progression "Starting some systemd services..."
 
 ynh_systemctl --service=$app-redis-cache --action="start" --log_path="$install_dir/dokos-bench-folder/logs/redis-cache.log" --wait_until="Ready to accept connections"
 ynh_systemctl --service=$app-redis-queue --action="start" --log_path="$install_dir/dokos-bench-folder/logs/redis-queue.log" --wait_until="Ready to accept connections"
@@ -162,13 +161,15 @@ popd
 #=================================================
 # START ADDITIONAL SYSTEMD SERVICES
 #=================================================
+ynh_script_progression "Starting rest of systemd services..."
+
 ynh_systemctl --service=$app-frappe-default-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/default-worker.log" --wait_until="Listening on var-www-$app-dokos-bench-folder:default"
 ynh_systemctl --service=$app-frappe-long-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/long-worker.log" --wait_until="Listening on var-www-$app-dokos-bench-folder:long"
 ynh_systemctl --service=$app-frappe-short-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/short-worker.log" --wait_until="Listening on var-www-$app-dokos-bench-folder:short"
-ynh_systemctl --service=$app-frappe-schedule --action="start" --log_path="systemd" --wait_until="Started dokos-frappe-schedule.service - "
+ynh_systemctl --service=$app-frappe-schedule --action="start" --log_path="systemd"
 systemctl start "$app-workers.target" --quiet
 
-ynh_systemctl --service=$app-frappe-web --action="start" --log_path="systemd" --wait_until="Started dokos-frappe-web.service - "
+ynh_systemctl --service=$app-frappe-web --action="start" --log_path="systemd"
 ynh_systemctl --service=$app-node-socketio --action="start" --log_path="$install_dir/dokos-bench-folder/logs/node-socketio.log" --wait_until="Realtime service listening on"
 systemctl start "$app-web.target" --quiet
 
@@ -202,9 +203,7 @@ pushd $install_dir/dokos-bench-folder
 
 popd
 
-# Now to make sure the environment is fully setup
-chmod 755 "$install_dir"
-chown -R $app:$app "$install_dir"
+chown -R $app:www-data "$install_dir"
 
 #=================================================
 # RELOAD NGINX

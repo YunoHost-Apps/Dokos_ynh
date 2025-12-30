@@ -94,10 +94,10 @@ systemctl start "$app-redis.target" --quiet
 ynh_systemctl --service=$app-frappe-default-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/default-worker.log" # --wait_until="Listening on var-www-$app-dokos-bench-folder:default"
 ynh_systemctl --service=$app-frappe-long-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/long-worker.log" # --wait_until="Listening on var-www-$app-dokos-bench-folder:long"
 ynh_systemctl --service=$app-frappe-short-worker --action="start" --log_path="$install_dir/dokos-bench-folder/logs/short-worker.log" # --wait_until="Listening on var-www-$app-dokos-bench-folder:short"
-ynh_systemctl --service=$app-frappe-schedule --action="start" --log_path="systemd" --wait_until="Started dokos-frappe-schedule.service - "
+ynh_systemctl --service=$app-frappe-schedule --action="start" --log_path="systemd"
 systemctl start "$app-workers.target" --quiet
 
-ynh_systemctl --service=$app-frappe-web --action="start" --log_path="systemd" --wait_until="Started dokos-frappe-web.service - "
+ynh_systemctl --service=$app-frappe-web --action="start" --log_path="systemd"
 ynh_systemctl --service=$app-node-socketio --action="start" --log_path="$install_dir/dokos-bench-folder/logs/node-socketio.log" # --wait_until="Realtime service listening on"
 systemctl start "$app-web.target" --quiet
 
@@ -123,9 +123,7 @@ pushd $install_dir/dokos-bench-folder
     ynh_exec_as_app PATH=$install_dir/bin:$PATH bench --site $domain scheduler resume
 popd
 
-# Now to make sure the environment is fully setup
-chmod 750 "$install_dir"
-chown $app:$app -R $install_dir
+chown -R $app:www-data "$install_dir"
 
 #=================================================
 # RELOAD NGINX
