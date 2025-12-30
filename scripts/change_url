@@ -6,11 +6,24 @@ source /usr/share/yunohost/helpers
 #=================================================
 # STOP SUPERVISOR SERVICE
 #=================================================
-ynh_script_progression "Stopping a supervisor service..."
-
-# ynh_supervisor_action --service="${app}-horizon" --action="stop" --log_path="/var/log/$app/${app}-horizon.log"
+ynh_script_progression "Stopping services..."
 
 ynh_systemctl --service=$app --action="stop"
+
+systemctl stop "$app.target" --quiet
+systemctl stop "$app-web.target" --quiet
+ynh_systemctl --service="$app-node-socketio" --action="stop" --log_path="$install_dir/dokos-bench-folder/logs/node-socketio.log"
+ynh_systemctl --service="$app-frappe-web" --action="stop" --log_path="$install_dir/dokos-bench-folder/logs/web.log"
+
+systemctl stop "$app-workers.target" --quiet
+ynh_systemctl --service="$app-frappe-schedule" --action="stop" --log_path="$install_dir/dokos-bench-folder/logs/schedule.log"
+ynh_systemctl --service="$app-frappe-short-worker" --action="stop" --log_path="$install_dir/dokos-bench-folder/logs/short-worker.log"
+ynh_systemctl --service="$app-frappe-long-worker" --action="stop" --log_path="$install_dir/dokos-bench-folder/logs/long-worker.log"
+ynh_systemctl --service="$app-frappe-default-worker" --action="stop" --log_path="$install_dir/dokos-bench-folder/logs/default-worker.log"
+
+systemctl stop "$app-redis.target" --quiet
+ynh_systemctl --service="$app-redis-queue" --action="stop" --log_path="$install_dir/dokos-bench-folder/logs/redis-queue.log"
+ynh_systemctl --service="$app-redis-cache" --action="stop" --log_path="$install_dir/dokos-bench-folder/logs/redis-cache.log"
 
 #=================================================
 # MODIFY URL IN NGINX CONF
@@ -30,11 +43,23 @@ chown -R $app:www-data "$install_dir"
 #=================================================
 # START SUPERVISOR SERVICE
 #=================================================
-ynh_script_progression "Starting a supervisor service..."
+ynh_script_progression "Starting services..."
 
-#ynh_supervisor_action --service="${app}-horizon" --action="start" --log_path="systemd" --wait_until="success: ${app}-horizon"
+ynh_systemctl --service=$app-redis-cache --action="restart" --log_path="$install_dir/dokos-bench-folder/logs/redis-cache.log" # --wait_until="Ready to accept connections"
+ynh_systemctl --service=$app-redis-queue --action="restart" --log_path="$install_dir/dokos-bench-folder/logs/redis-queue.log" # --wait_until="Ready to accept connections"
+systemctl restart "$app-redis.target" --quiet
 
-ynh_systemctl --service=$app --action="start"
+ynh_systemctl --service=$app-frappe-default-worker --action="restart" --log_path="$install_dir/dokos-bench-folder/logs/default-worker.log" # --wait_until="Listening on var-www-$app-dokos-bench-folder:default"
+ynh_systemctl --service=$app-frappe-long-worker --action="restart" --log_path="$install_dir/dokos-bench-folder/logs/long-worker.log" # --wait_until="Listening on var-www-$app-dokos-bench-folder:long"
+ynh_systemctl --service=$app-frappe-short-worker --action="restart" --log_path="$install_dir/dokos-bench-folder/logs/short-worker.log" # --wait_until="Listening on var-www-$app-dokos-bench-folder:short"
+ynh_systemctl --service=$app-frappe-schedule --action="restart" --log_path="systemd"
+systemctl restart "$app-workers.target" --quiet
+
+ynh_systemctl --service=$app-frappe-web --action="restart" --log_path="systemd"
+ynh_systemctl --service=$app-node-socketio --action="restart" --log_path="$install_dir/dokos-bench-folder/logs/node-socketio.log" # --wait_until="Realtime service listening on"
+systemctl restart "$app-web.target" --quiet
+
+systemctl restart "$app.target" --quiet
 
 #=================================================
 # END OF SCRIPT
