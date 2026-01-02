@@ -19,12 +19,14 @@ userdoc = "https://doc.dokos.io/dokos"
 code = "https://gitlab.com/dokos/dokos"
 
 [integration]
-yunohost = '>= 12.0'
+yunohost = '>= 12.1.17'
 helpers_version = "2.1"
 architectures = ['amd64', 'arm64',]
 multi_instance = true
+
 ldap = false
 sso = false
+
 disk = "4G"
 ram.build = "250M"
 ram.runtime = "512M"
@@ -124,3 +126,4 @@ ram.runtime = "512M"
 
     [resources.nodejs]
     version = "18"
+    
