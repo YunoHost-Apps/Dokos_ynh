@@ -229,4 +229,5 @@ ynh_config_add_logrotate "$install_dir/dokos-bench-folder/logs/node-socketio.log
 #=================================================
 # END OF SCRIPT
 #=================================================
+
 ynh_script_progression "Installation of $app completed"
