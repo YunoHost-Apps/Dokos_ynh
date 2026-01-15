@@ -6,7 +6,7 @@ name = "Dokos"
 description.en = "A 100% open-source management software that is based on ERPNext"
 description.fr = "Une plateforme de gestion d'entreprise complète, 100% open-source, basée sur ERPNext"
 
-version = "4.65.2~ynh2"
+version = "4.65.3~ynh1"
 
 maintainers = ["Thatoo"]
 
@@ -59,8 +59,8 @@ ram.runtime = "512M"
     [resources.sources]
 
         [resources.sources.main]
-        url = "https://gitlab.com/dokos/dokos/-/archive/v4.65.2/dokos-v4.65.2.tar.bz2"
-        sha256 = "e7618c13abfe3c089428afdd89872b4768f8e73713240ec4e346352d110c19aa"
+        url = "https://gitlab.com/dokos/dokos/-/archive/v4.65.3/dokos-v4.65.3.tar.bz2"
+        sha256 = "055b9126fb4152ae8f997f97a4808da3612e5b0e68a2088ed3f4a63e7d055e70"
         prefetch = true
         autoupdate.strategy = "latest_gitlab_release"
 
