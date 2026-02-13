@@ -6,7 +6,7 @@ name = "Dokos"
 description.en = "A 100% open-source management software that is based on ERPNext"
 description.fr = "Une plateforme de gestion d'entreprise complète, 100% open-source, basée sur ERPNext"
 
-version = "4.68.2~ynh1"
+version = "4.69.1~ynh1"
 
 maintainers = ["Thatoo"]
 
@@ -59,8 +59,8 @@ ram.runtime = "512M"
     [resources.sources]
 
         [resources.sources.main]
-        url = "https://gitlab.com/dokos/dokos/-/archive/v4.68.2/dokos-v4.68.2.tar.bz2"
-        sha256 = "1f234e402372e6b0afdd04faa7c2dbde18f6b22095cebaa5bfbd81126e441a3a"
+        url = "https://gitlab.com/dokos/dokos/-/archive/v4.69.1/dokos-v4.69.1.tar.bz2"
+        sha256 = "d5922f7dfeb2a27164859956a592ffe6dd65ad8be6b45be0dad4b377c234ce8d"
         prefetch = true
         autoupdate.strategy = "latest_gitlab_release"
 
@@ -72,8 +72,8 @@ ram.runtime = "512M"
         autoupdate.upstream = "https://gitlab.com/dokos/dodock"
 
         [resources.sources.payments]
-        url = "https://gitlab.com/dokos/payments/-/archive/v2.25.1/payments-v2.25.1.tar.bz2"
-        sha256 = "440429082883f9cf6276d85413914b5c0b30aba849d47bf756d4bec71ad27d2b"
+        url = "https://gitlab.com/dokos/payments/-/archive/v2.25.3/payments-v2.25.3.tar.bz2"
+        sha256 = "7be3dbb9ab1c3f18853d003e70037a799c874b52d42a5669abbf6703074cde2b"
         prefetch = true
         autoupdate.strategy = "latest_gitlab_release"
         autoupdate.upstream = "https://gitlab.com/dokos/payments"
