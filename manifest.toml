@@ -6,7 +6,7 @@ name = "Dokos"
 description.en = "A 100% open-source management software that is based on ERPNext"
 description.fr = "Une plateforme de gestion d'entreprise complète, 100% open-source, basée sur ERPNext"
 
-version = "4.69.2~ynh2"
+version = "4.69.3~ynh1"
 
 maintainers = ["Thatoo"]
 
@@ -59,21 +59,21 @@ ram.runtime = "512M"
     [resources.sources]
 
         [resources.sources.main]
-        url = "https://gitlab.com/dokos/dokos/-/archive/v4.69.2/dokos-v4.69.2.tar.bz2"
-        sha256 = "9830e8c24f73922a082d11a542b5d6fe0a5cacc878c7d536912ddc91b3b245cc"
+        url = "https://gitlab.com/dokos/dokos/-/archive/v4.69.3/dokos-v4.69.3.tar.bz2"
+        sha256 = "757fd50798319f3cdf15a82ffd4b71b5ac226721fe3abeb85edbe426fc0c72c6"
         prefetch = true
         autoupdate.strategy = "latest_gitlab_release"
 
         [resources.sources.frappe]
-        url = "https://gitlab.com/dokos/dodock/-/archive/v4.70.1/dodock-v4.70.1.tar.bz2"
-        sha256 = "7f7670ac2e35567e3539bc057fa75d2a440bd1c662147fcb0de6df846497492d"
+        url = "https://gitlab.com/dokos/dodock/-/archive/v4.70.2/dodock-v4.70.2.tar.bz2"
+        sha256 = "137eb293f22571b27cc7868d5159fd71264a16e554a4f0e9486ab2448f971758"
         prefetch = true
         autoupdate.strategy = "latest_gitlab_release"
         autoupdate.upstream = "https://gitlab.com/dokos/dodock"
 
         [resources.sources.payments]
-        url = "https://gitlab.com/dokos/payments/-/archive/v2.25.3/payments-v2.25.3.tar.bz2"
-        sha256 = "7be3dbb9ab1c3f18853d003e70037a799c874b52d42a5669abbf6703074cde2b"
+        url = "https://gitlab.com/dokos/payments/-/archive/v2.25.4/payments-v2.25.4.tar.bz2"
+        sha256 = "f0ede039a2e47592e48c9ac028f3f31e3d97960e8a0f4b40b67fe0d34a8b7c4e"
         prefetch = true
         autoupdate.strategy = "latest_gitlab_release"
         autoupdate.upstream = "https://gitlab.com/dokos/payments"
@@ -119,7 +119,7 @@ ram.runtime = "512M"
     webserver.default = 8000
 
     [resources.apt]
-    packages = ["python3", "python3-pip", "python3-venv", "python3-dev", "python3-setuptools", "python3-distutils", "software-properties-common", "git", "curl", "ca-certificates", "redis-server", "xvfb", "libfontconfig", "fontconfig", "xfonts-base", "xfonts-75dpi", "libxrender1", "mariadb-server", "mariadb-client"]
+    packages = ["python3", "python3-pip", "python3-venv", "python3-dev", "python3-setuptools", "git", "curl", "ca-certificates", "redis-server", "xvfb", "libfontconfig", "fontconfig", "xfonts-base", "xfonts-75dpi", "libxrender1", "mariadb-server", "mariadb-client"]
 
     [resources.database]
     type = "mysql"
