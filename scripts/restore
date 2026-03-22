@@ -118,7 +118,6 @@ ynh_systemctl --service=nginx --action=reload
 ynh_script_progression "Enabling Scheduler..."
 
 pushd $install_dir/dokos-bench-folder
-
     ynh_exec_as_app PATH=$install_dir/bin:$PATH bench --site $domain scheduler enable && \
     ynh_exec_as_app PATH=$install_dir/bin:$PATH bench --site $domain scheduler resume
 popd
