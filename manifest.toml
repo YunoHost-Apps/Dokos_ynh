@@ -6,7 +6,7 @@ name = "Dokos"
 description.en = "A 100% open-source management software that is based on ERPNext"
 description.fr = "Une plateforme de gestion d'entreprise complète, 100% open-source, basée sur ERPNext"
 
-version = "4.69.4~ynh1"
+version = "5.60.1~ynh1"
 
 maintainers = ["Thatoo"]
 
@@ -59,28 +59,28 @@ ram.runtime = "512M"
     [resources.sources]
 
         [resources.sources.main]
-        url = "https://gitlab.com/dokos/dokos/-/archive/v4.69.4/dokos-v4.69.4.tar.bz2"
-        sha256 = "e9fc05769b0f817c591adc82b2416900955e14dc4b947f0971052bc4c2064b2a"
+        url = "https://gitlab.com/dokos/dokos/-/archive/v5.60.1/dokos-v5.60.1.tar.bz2"
+        sha256 = "3729fd31a085f0f86134d27f6805cb8aa451fbc79d6f9e1eac0ec13822998b73"
         prefetch = true
         autoupdate.strategy = "latest_gitlab_release"
 
         [resources.sources.frappe]
-        url = "https://gitlab.com/dokos/dodock/-/archive/v4.70.2/dodock-v4.70.2.tar.bz2"
-        sha256 = "137eb293f22571b27cc7868d5159fd71264a16e554a4f0e9486ab2448f971758"
+        url = "https://gitlab.com/dokos/dodock/-/archive/v5.60.1/dodock-v5.60.1.tar.bz2"
+        sha256 = "876b200f263028aa30e96a709d594d3dcd28d94e51461fc39c2370b78fa2d16c"
         prefetch = true
         autoupdate.strategy = "latest_gitlab_release"
         autoupdate.upstream = "https://gitlab.com/dokos/dodock"
 
         [resources.sources.payments]
-        url = "https://gitlab.com/dokos/payments/-/archive/v2.25.4/payments-v2.25.4.tar.bz2"
-        sha256 = "f0ede039a2e47592e48c9ac028f3f31e3d97960e8a0f4b40b67fe0d34a8b7c4e"
+        url = "https://gitlab.com/dokos/payments/-/archive/v3.12.0/payments-v3.12.0.tar.bz2"
+        sha256 = "48eb4f286e4818807ece0c38b08891a81010b4b133dce424bbe38e5745a76544"
         prefetch = true
         autoupdate.strategy = "latest_gitlab_release"
         autoupdate.upstream = "https://gitlab.com/dokos/payments"
 
         [resources.sources.hrms]
-        url = "https://gitlab.com/dokos/hrms/-/archive/v2.61.0/hrms-v2.61.0.tar.bz2"
-        sha256 = "184775fef9ede005d7ff22062ea4bcb6578fc11cb48491f000a8ad4d8d76c30e"
+        url = "https://gitlab.com/dokos/hrms/-/archive/v3.14.9/hrms-v3.14.9.tar.bz2"
+        sha256 = "a2fa671bd2ae90220dbc52a47d5f8b7fceb23adbc3bb0ea81c89f790f32b2e67"
         prefetch = true
         autoupdate.strategy = "latest_gitlab_release"
         autoupdate.upstream = "https://gitlab.com/dokos/hrms"
